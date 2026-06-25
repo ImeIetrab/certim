@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tableau de bord — CertIM</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); display: flex; }
+
+    /* ── Sidebar ─── */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--navy);
+      position: fixed;
+      top: 0; bottom: 0; left: 0;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .sb-logo {
+      padding: 20px 22px;
+      border-bottom: 1px solid rgba(61,90,120,.25);
+    }
+    .sb-user {
+      padding: 16px 22px;
+      border-bottom: 1px solid rgba(61,90,120,.25);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sb-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--blue-mid);
+      color: var(--cream);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 15px; flex-shrink: 0;
+    }
+    .sb-user-name { color: var(--cream); font-size: 13px; font-weight: 600; }
+    .sb-user-email { color: var(--blue-light); font-size: 11px; margin-top: 1px; }
+    nav.sb-nav { padding: 10px 0; }
+    .sb-nav-item {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; padding: 9px 22px;
+      background: transparent;
+      border: none; border-left: 3px solid transparent;
+      color: var(--blue-light);
+      font-size: 13.5px; font-weight: 400;
+      cursor: pointer; text-align: left;
+      font-family: var(--font-sans);
+      transition: all var(--transition-base);
+    }
+    .sb-nav-item:hover { color: var(--cream); background: rgba(255,255,255,.04); }
+    .sb-nav-item.active {
+      background: rgba(200,184,130,.1);
+      border-left-color: var(--gold);
+      color: var(--gold);
+      font-weight: 600;
+    }
+    .sb-nav-icon { font-size: 15px; }
+    .sb-divider { height: 1px; background: rgba(61,90,120,.3); margin: 6px 22px; }
+    .sb-themes {
+      padding: 14px 22px 20px;
+      flex: 1;
+    }
+    .sb-themes-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--blue-mid); margin-bottom: 12px;
+    }
+    .sb-theme-row { margin-bottom: 9px; }
+    .sb-theme-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;
+    }
+    .sb-theme-name {
+      font-size: 11px; color: var(--blue-light);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;
+    }
+    .sb-theme-score { font-size: 11px; font-weight: 700; }
+    .sb-cert {
+      padding: 14px 22px;
+      border-top: 1px solid rgba(61,90,120,.25);
+    }
+    .sb-cert-pill {
+      display: flex; align-items: center; gap: 9px;
+      background: var(--surface-accent);
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius-md);
+      padding: 9px 12px;
+    }
+    .sb-cert-tag {
+      background: var(--gold); color: var(--navy);
+      font-size: 9px; font-weight: 800;
+      padding: 2px 6px; border-radius: 3px; letter-spacing: 0.04em;
+    }
+    .sb-cert-title { color: var(--cream); font-size: 11px; font-weight: 600; }
+    .sb-cert-status { color: var(--gold); font-size: 10px; }
+
+    /* ── Main ─── */
+    .main { margin-left: var(--sidebar-width); display: flex; flex-direction: column; min-height: 100vh; flex: 1; }
+
+    /* ── Hero ─── */
+    .dash-hero {
+      background: var(--hero-gradient);
+      padding: 22px 32px;
+      position: relative; overflow: hidden; flex-shrink: 0;
+    }
+    .dash-hero-grid {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(var(--cream) 1px, transparent 1px),
+                        linear-gradient(90deg, var(--cream) 1px, transparent 1px);
+      background-size: 50px 50px;
+      opacity: 0.03;
+      pointer-events: none;
+    }
+    .hero-content {
+      position: relative;
+      display: flex; align-items: center;
+      justify-content: space-between;
+      gap: 20px; flex-wrap: wrap;
+    }
+    .hero-greeting { color: var(--cream); font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; }
+    .hero-cert-label { color: var(--blue-light); font-size: 12px; margin-top: 3px; }
+    .kpi-pills { display: flex; gap: 12px; align-items: center; }
+    .kpi-pill {
+      background: var(--navy-fill-2);
+      border: 1px solid var(--navy-border);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      min-width: 130px;
+    }
+    .kpi-pill-label {
+      color: var(--blue-light);
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+    .kpi-value { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+    .kpi-value.gold  { color: var(--gold); }
+    .kpi-value.cream { color: var(--cream); }
+    .kpi-sub { font-size: 11px; color: var(--blue-light); margin-top: 5px; }
+    .kpi-sub-gold { font-size: 11px; color: var(--gold-dark); margin-top: 6px; }
+    .hero-actions { display: flex; gap: 8px; align-items: center; }
+
+    /* ── Streak KPI ─── */
+    .streak-val {
+      display: flex; align-items: center; gap: 7px;
+    }
+    .streak-emoji { font-size: 1.5rem; line-height: 1; }
+
+    /* ── Recommendation banner ─── */
+    .reco-banner {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 32px;
+      background: rgba(200, 184, 130, 0.10);
+      border-bottom: 1px solid rgba(200, 184, 130, 0.30);
+      overflow: hidden;
+      max-height: 80px;
+      transition: max-height 0.35s ease, opacity 0.35s ease, padding 0.35s ease;
+    }
+    .reco-banner.dismissed {
+      max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0; pointer-events: none;
+    }
+    .reco-icon { font-size: 20px; flex-shrink: 0; }
+    .reco-text { flex: 1; font-size: 13px; color: var(--navy); }
+    .reco-text strong { font-weight: 700; color: var(--navy); }
+    .reco-btn {
+      padding: 7px 14px;
+      background: var(--gold);
+      color: var(--navy);
+      border: none;
+      border-radius: 6px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      text-decoration: none;
+      transition: background 150ms;
+    }
+    .reco-btn:hover { background: var(--gold-d); }
+    .reco-close {
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      border: none; background: transparent;
+      font-size: 16px; color: var(--blue-l);
+      cursor: pointer; flex-shrink: 0; border-radius: 4px;
+      transition: color 150ms, background 150ms;
+    }
+    .reco-close:hover { color: var(--navy); background: rgba(0,0,0,0.06); }
+
+    /* ── Body ─── */
+    .dash-body {
+      padding: 24px 32px;
+      display: flex; flex-direction: column;
+      gap: 22px;
+    }
+
+    /* ── Grid 2 cols ─── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap-cards); align-items: start; }
+
+    /* ── Last exam card (navy) ─── */
+    .last-exam-card {
+      background: var(--navy);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+    }
+    .lex-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue-light); margin-bottom: 12px; }
+    .lex-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .lex-score { font-size: 2.6rem; font-weight: 800; line-height: 1; letter-spacing: -0.04em; color: var(--danger); }
+    .lex-status { font-size: 10px; font-weight: 700; margin-top: 3px; color: var(--danger); }
+    .lex-meta-date { color: var(--cream); font-size: 12px; font-weight: 600; text-align: right; }
+    .lex-meta-time { color: var(--blue-light); font-size: 11px; margin-top: 2px; text-align: right; }
+    .lex-bar-labels { display: flex; justify-content: space-between; margin-bottom: 5px; }
+    .lex-bar-label { color: var(--blue-light); font-size: 11px; }
+
+    /* ── Calendar card ─── */
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+    .cal-day { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+    .cal-day-label { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+    .cal-cell {
+      width: 100%; aspect-ratio: 1;
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+    }
+    .cal-cell.today { outline: 2px solid var(--navy); outline-offset: 2px; }
+    .cal-date { font-size: 10px; color: var(--text-muted); }
+    .cal-date.today { color: var(--navy); font-weight: 700; }
+    .cal-legend {
+      display: flex; gap: 10px; margin-top: 12px;
+      padding-top: 12px; border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .cal-legend-item {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 11px; color: var(--text-muted);
+    }
+    .cal-legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+    }
+
+    /* ── Exam history ─── */
+    .exam-history { display: flex; flex-direction: column; gap: 7px; }
+    .exam-row {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius-md); padding: 13px 16px;
+      gap: 14px; flex-wrap: wrap;
+    }
+    .exam-row-info { flex: 1; }
+    .exam-row-name { font-size: 13px; font-weight: 600; }
+    .exam-row-date { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .exam-row-meta { display: flex; gap: 12px; align-items: center; }
+    .exam-row-dur { font-size: 12px; color: var(--text-muted); }
+    .exam-row-score { font-size: 14px; font-weight: 700; }
+
+    /* ── Stats section ─── */
+    .stats-legend { display: flex; gap: 12px; padding-top: 14px; border-top: 1px solid var(--border); margin-top: 4px; flex-wrap: wrap; }
+    .stats-legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-muted); }
+    .stats-legend-dot { width: 9px; height: 9px; border-radius: 2px; }
+    .quick-stat-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .quick-stat-row:last-child { border-bottom: none; }
+    .quick-stat-label { font-size: 13px; color: var(--text-muted); }
+    .quick-stat-val { font-size: 13px; font-weight: 700; }
+
+    /* ── Account ─── */
+    .account-field { display: flex; gap: 12px; margin-bottom: 9px; }
+    .account-field-label { width: 90px; color: var(--text-muted); font-size: 13px; flex-shrink: 0; }
+    .account-field-val { font-size: 13px; font-weight: 500; }
+    .subscription-header { display: flex; align-items: center; justify-content: space-between; }
+    .subscription-name { font-size: 14px; font-weight: 600; }
+    .subscription-renewal { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+    .subscription-actions { padding-top: 14px; border-top: 1px solid var(--border); margin-top: 14px; }
+
+    /* ── Theme picker ─── */
+    .theme-chips-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 14px; }
+    .chip-selection-label { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 12px; }
+    .count-label { font-size: 13px; font-weight: 600; margin-bottom: 7px; }
+
+    /* ── Stats progress rows ─── */
+    .stat-theme-row { margin-bottom: 13px; }
+    .stat-theme-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+    .stat-theme-name { font-size: 13px; font-weight: 500; }
+    .stat-theme-meta { display: flex; gap: 8px; align-items: center; }
+    .stat-theme-seen { font-size: 11px; color: var(--text-muted); }
+    .stat-theme-score { font-size: 12px; font-weight: 700; min-width: 32px; text-align: right; }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════
+       SIDEBAR
+  ══════════════════════════════════════════════════ -->
+  <aside class="sidebar">
+    <!-- Logo -->
+    <div class="sb-logo">
+      <span class="wordmark">Cert<span class="im">IM</span></span>
+    </div>
+
+    <!-- User -->
+    <div class="sb-user">
+      <div class="sb-avatar">A</div>
+      <div>
+        <div class="sb-user-name">Alexandre Dubois</div>
+        <div class="sb-user-email">a.dubois@banque.fr</div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sb-nav">
+      <button class="sb-nav-item active" data-target="s-overview" onclick="navigateTo('s-overview')">
+        <span class="sb-nav-icon">◈</span> Tableau de bord
+      </button>
+      <button class="sb-nav-item" data-target="s-training" onclick="navigateTo('s-training')">
+        <span class="sb-nav-icon">◎</span> Entraînement
+      </button>
+      <button class="sb-nav-item" data-target="s-exams" onclick="navigateTo('s-exams')">
+        <span class="sb-nav-icon">◉</span> Examens blancs
+      </button>
+      <button class="sb-nav-item" data-target="s-stats" onclick="navigateTo('s-stats')">
+        <span class="sb-nav-icon">◐</span> Statistiques
+      </button>
+      <button class="sb-nav-item" data-target="s-account" onclick="navigateTo('s-account')">
+        <span class="sb-nav-icon">◑</span> Mon compte
+      </button>
+    </nav>
+
+    <div class="sb-divider"></div>
+
+    <!-- Per-theme progress -->
+    <div class="sb-themes">
+      <div class="sb-themes-label">Progression par thème</div>
+
+      <div class="sb-theme-row">
+        <div class="sb-theme-header">
+          <span class="sb-theme-name">Cadre réglementaire</span>
+          <span class="sb-theme-score" style="color:var(--success)">78%</span>
+        </div>
+        <div class="pbar pbar-navy" style="height:4px"><div class="pbar-fill" data-val="78" style="background:var(--success)"></div></div>
+      </div>
+      <div class="sb-theme-row">
+        <div class="sb-theme-header">
+          <span class="sb-theme-name">Produits financiers</span>
+          <span class="sb-theme-score" style="color:var(--warning)">65%</span>
+        </div>
+        <div class="pbar pbar-navy" style="height:4px"><div class="pbar-fill" data-val="65" style="background:var(--warning)"></div></div>
+      </div>
+      <div class="sb-theme-row">
+        <div class="sb-theme-header">
+          <span class="sb-theme-name">Marchés financiers</span>
+          <span class="sb-theme-score" style="color:var(--warning)">72%</span>
+        </div>
+        <div class="pbar pbar-navy" style="height:4px"><div class="pbar-fill" data-val="72" style="background:var(--warning)"></div></div>
+      </div>
+      <div class="sb-theme-row">
+        <div class="sb-theme-header">
+          <span class="sb-theme-name">Analyse financière</span>
+          <span class="sb-theme-score" style="color:var(--danger)">48%</span>
+        </div>
+        <div class="pbar pbar-navy" style="height:4px"><div class="pbar-fill" data-val="48" style="background:var(--danger)"></div></div>
+      </div>
+      <div class="sb-theme-row">
+        <div class="sb-theme-header">
+          <span class="sb-theme-name">Gestion portefeuille</span>
+          <span class="sb-theme-score" style="color:var(--warning)">55%</span>
+        </div>
+        <div class="pbar pbar-navy" style="height:4px"><div class="pbar-fill" data-val="55" style="background:var(--warning)"></div></div>
+      </div>
+      <div class="sb-theme-row">
+        <div class="sb-theme-header">
+          <span class="sb-theme-name">Les risques</span>
+          <span class="sb-theme-score" style="color:var(--success)">80%</span>
+        </div>
+        <div class="pbar pbar-navy" style="height:4px"><div class="pbar-fill" data-val="80" style="background:var(--success)"></div></div>
+      </div>
+      <div class="sb-theme-row">
+        <div class="sb-theme-header">
+          <span class="sb-theme-name">Conformité</span>
+          <span class="sb-theme-score" style="color:var(--warning)">69%</span>
+        </div>
+        <div class="pbar pbar-navy" style="height:4px"><div class="pbar-fill" data-val="69" style="background:var(--warning)"></div></div>
+      </div>
+      <div class="sb-theme-row">
+        <div class="sb-theme-header">
+          <span class="sb-theme-name">Finance durable</span>
+          <span class="sb-theme-score" style="color:var(--danger)">30%</span>
+        </div>
+        <div class="pbar pbar-navy" style="height:4px"><div class="pbar-fill" data-val="30" style="background:var(--danger)"></div></div>
+      </div>
+    </div>
+
+    <!-- Cert pill -->
+    <div class="sb-cert">
+      <div class="sb-cert-pill">
+        <span class="sb-cert-tag">AMF</span>
+        <div>
+          <div class="sb-cert-title">Certification AMF</div>
+          <div class="sb-cert-status">Abonnement actif</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════════════════════════════
+       MAIN
+  ══════════════════════════════════════════════════ -->
+  <main class="main">
+
+    <!-- ── Hero ─────────────────────────────────── -->
+    <div class="dash-hero">
+      <div class="dash-hero-grid"></div>
+      <div class="hero-content">
+
+        <div>
+          <div class="hero-greeting">Bonjour, Alexandre 👋</div>
+          <div class="hero-cert-label">Certification AMF · Progression en cours</div>
+        </div>
+
+        <div class="kpi-pills">
+          <!-- Streak -->
+          <div class="kpi-pill">
+            <div class="kpi-pill-label">Jours consécutifs</div>
+            <div class="streak-val">
+              <span class="streak-emoji">🔥</span>
+              <span class="kpi-value cream" data-counter="7">0</span>
+            </div>
+            <div class="kpi-sub">Série active · Record : 12 j.</div>
+          </div>
+          <!-- Score -->
+          <div class="kpi-pill" style="min-width:160px">
+            <div class="kpi-pill-label">Score de maîtrise</div>
+            <div class="kpi-value gold" data-counter="62" data-suffix="%">0%</div>
+            <div class="pbar pbar-navy" style="height:5px;margin-top:7px">
+              <div class="pbar-fill" data-val="62" style="background:var(--warning)"></div>
+              <div class="pbar-goal"></div>
+            </div>
+            <div class="kpi-sub-gold">Objectif 75% · −13 pts</div>
+          </div>
+          <!-- Questions -->
+          <div class="kpi-pill">
+            <div class="kpi-pill-label">Questions répondues</div>
+            <div class="kpi-value cream" data-counter="347">0</div>
+            <div class="kpi-sub">sur ~600 · Moy. <strong style="color:var(--gold)">71%</strong></div>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          <button class="btn btn-primary" onclick="navigateTo('s-training')">▶ S'entraîner</button>
+          <button class="btn btn-outline" onclick="navigateTo('s-exams')">Examen blanc</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Recommendation banner ─────────────────── -->
+    <div class="reco-banner" id="recoBanner">
+      <span class="reco-icon">💡</span>
+      <div class="reco-text">
+        <strong>Finance durable</strong> — votre thème le plus faible (30%).
+        Travaillez ce thème en priorité pour progresser rapidement.
+      </div>
+      <a href="question.html?theme=Finance+durable" class="reco-btn">S'entraîner sur ce thème</a>
+      <button class="reco-close" onclick="dismissBanner()" aria-label="Fermer">×</button>
+    </div>
+
+    <!-- ── Body ─────────────────────────────────── -->
+    <div class="dash-body">
+
+      <!-- ─ Tableau de bord ─ -->
+      <section id="s-overview" style="scroll-margin-top:20px">
+        <div class="section-label">Tableau de bord</div>
+        <div class="grid-2">
+
+          <!-- Theme picker -->
+          <div class="card">
+            <div class="card-title">Lancer un entraînement</div>
+            <div class="card-subtitle">Sélectionnez un ou plusieurs thèmes ci-dessous.</div>
+            <div class="theme-chips-grid" id="picker-overview">
+              <!-- chips injected by JS -->
+            </div>
+            <div class="chip-selection-label" id="count-overview">Tous les thèmes · aucune sélection</div>
+            <div class="count-label">Nombre de questions</div>
+            <div class="count-selector" data-group="overview">
+              <button class="count-opt" onclick="selectCount(this,'overview')">10</button>
+              <button class="count-opt selected" onclick="selectCount(this,'overview')">20</button>
+              <button class="count-opt" onclick="selectCount(this,'overview')">50</button>
+              <button class="count-opt" onclick="selectCount(this,'overview')">Toutes</button>
+            </div>
+            <a href="question.html" class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:16px;background:var(--navy);color:var(--gold);text-decoration:none">
+              Commencer l'entraînement →
+            </a>
+          </div>
+
+          <!-- Right column -->
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <!-- Last exam (navy card) -->
+            <div class="last-exam-card">
+              <div class="lex-label">Dernier examen blanc</div>
+              <div class="lex-header">
+                <div>
+                  <div class="lex-score">68%</div>
+                  <div class="lex-status">ÉCHOUÉ · Il manque 7 points</div>
+                </div>
+                <div>
+                  <div class="lex-meta-date">18 juin 2026</div>
+                  <div class="lex-meta-time">2h12 / 2h30</div>
+                </div>
+              </div>
+              <div class="lex-bar-labels">
+                <span class="lex-bar-label">Score</span>
+                <span class="lex-bar-label">Seuil 75%</span>
+              </div>
+              <div class="pbar pbar-navy" style="height:6px">
+                <div class="pbar-fill" data-val="68" style="background:var(--danger)"></div>
+                <div class="pbar-goal"></div>
+              </div>
+              <button class="btn btn-outline" style="width:100%;margin-top:14px;background:var(--surface-accent);border:1px solid var(--border-accent);color:var(--gold);font-size:12px;justify-content:center">
+                Relancer un examen blanc →
+              </button>
+            </div>
+
+            <!-- Calendar card -->
+            <div class="card">
+              <div class="card-title">Activité cette semaine</div>
+              <div class="card-subtitle">23 – 29 juin 2026</div>
+              <div class="cal-grid">
+                <div class="cal-day">
+                  <span class="cal-day-label">Lun</span>
+                  <div class="cal-cell" style="background:#BBF7D0;color:#166534">32</div>
+                  <span class="cal-date">23</span>
+                </div>
+                <div class="cal-day">
+                  <span class="cal-day-label">Mar</span>
+                  <div class="cal-cell" style="background:#FED7AA;color:#9A3412">18</div>
+                  <span class="cal-date">24</span>
+                </div>
+                <div class="cal-day">
+                  <span class="cal-day-label">Mer</span>
+                  <div class="cal-cell" style="background:#FEF3C7;color:#92400E">8</div>
+                  <span class="cal-date">25</span>
+                </div>
+                <div class="cal-day">
+                  <span class="cal-day-label">Jeu</span>
+                  <div class="cal-cell" style="background:#BBF7D0;color:#166534">45</div>
+                  <span class="cal-date">26</span>
+                </div>
+                <div class="cal-day">
+                  <span class="cal-day-label">Ven</span>
+                  <div class="cal-cell today" style="background:#FEF3C7;color:#92400E">12</div>
+                  <span class="cal-date today">27</span>
+                </div>
+                <div class="cal-day">
+                  <span class="cal-day-label">Sam</span>
+                  <div class="cal-cell" style="background:var(--bg);border:1px solid var(--border);color:var(--border)">—</div>
+                  <span class="cal-date">28</span>
+                </div>
+                <div class="cal-day">
+                  <span class="cal-day-label">Dim</span>
+                  <div class="cal-cell" style="background:var(--bg);border:1px solid var(--border);color:var(--border)">—</div>
+                  <span class="cal-date">29</span>
+                </div>
+              </div>
+              <div class="cal-legend">
+                <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#FEF3C7"></span>1–15 q.</div>
+                <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#FED7AA"></span>16–30 q.</div>
+                <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#BBF7D0"></span>30+ q.</div>
+                <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--bg)"></span>Inactif</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─ Examens blancs ─ -->
+      <section id="s-exams" style="scroll-margin-top:20px">
+        <div class="section-label">Examens blancs</div>
+        <div class="card">
+          <div class="card-title">Simulez l'examen officiel</div>
+          <div class="card-subtitle">120 questions · 2h30 · Timer · Correction à la fin · Seuil 75%</div>
+          <button class="btn btn-secondary" style="background:var(--navy);color:var(--gold);margin-bottom:24px">
+            Lancer un examen blanc →
+          </button>
+          <div style="font-weight:600;font-size:13px;margin-bottom:10px">Historique</div>
+          <div class="exam-history">
+            <div class="exam-row">
+              <div class="exam-row-info">
+                <div class="exam-row-name">Examen blanc #3</div>
+                <div class="exam-row-date">18 juin 2026</div>
+              </div>
+              <div class="exam-row-meta">
+                <span class="exam-row-dur">2h12</span>
+                <span class="exam-row-score" style="color:var(--danger)">68%</span>
+                <span class="badge badge-fail">Échoué</span>
+              </div>
+            </div>
+            <div class="exam-row">
+              <div class="exam-row-info">
+                <div class="exam-row-name">Examen blanc #2</div>
+                <div class="exam-row-date">11 juin 2026</div>
+              </div>
+              <div class="exam-row-meta">
+                <span class="exam-row-dur">2h24</span>
+                <span class="exam-row-score" style="color:var(--warning)">74%</span>
+                <span class="badge badge-fail">Échoué</span>
+              </div>
+            </div>
+            <div class="exam-row">
+              <div class="exam-row-info">
+                <div class="exam-row-name">Examen blanc #1</div>
+                <div class="exam-row-date">4 juin 2026</div>
+              </div>
+              <div class="exam-row-meta">
+                <span class="exam-row-dur">1h58</span>
+                <span class="exam-row-score" style="color:var(--danger)">61%</span>
+                <span class="badge badge-fail">Échoué</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─ Entraînement ─ -->
+      <section id="s-training" style="scroll-margin-top:20px">
+        <div class="section-label">Entraînement</div>
+        <div class="card" style="max-width:600px">
+          <div class="card-title">Session d'entraînement</div>
+          <div class="card-subtitle">Choisissez vos thèmes et le nombre de questions.</div>
+          <div class="theme-chips-grid" id="picker-training">
+            <!-- chips injected by JS -->
+          </div>
+          <div class="chip-selection-label" id="count-training">Tous les thèmes · aucune sélection</div>
+          <div class="count-label">Nombre de questions</div>
+          <div class="count-selector" data-group="training">
+            <button class="count-opt" onclick="selectCount(this,'training')">10</button>
+            <button class="count-opt selected" onclick="selectCount(this,'training')">20</button>
+            <button class="count-opt" onclick="selectCount(this,'training')">50</button>
+            <button class="count-opt" onclick="selectCount(this,'training')">Toutes</button>
+          </div>
+          <a href="question.html" class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:16px;background:var(--navy);color:var(--gold);text-decoration:none">
+            Commencer l'entraînement →
+          </a>
+        </div>
+      </section>
+
+      <!-- ─ Statistiques ─ -->
+      <section id="s-stats" style="scroll-margin-top:20px">
+        <div class="section-label">Statistiques</div>
+        <div class="grid-2">
+
+          <!-- Progression par thème -->
+          <div class="card">
+            <div class="card-title">Progression par thème</div>
+            <div class="card-subtitle">Niveau de maîtrise sur la banque complète.</div>
+
+            <div class="stat-theme-row">
+              <div class="stat-theme-header">
+                <span class="stat-theme-name">Cadre institutionnel et réglementaire</span>
+                <div class="stat-theme-meta">
+                  <span class="stat-theme-seen">109/140</span>
+                  <span class="stat-theme-score" style="color:var(--success)">78%</span>
+                </div>
+              </div>
+              <div class="pbar" style="height:7px"><div class="pbar-fill" data-val="78" style="background:var(--success)"></div></div>
+            </div>
+            <div class="stat-theme-row">
+              <div class="stat-theme-header">
+                <span class="stat-theme-name">L'offre de produits financiers</span>
+                <div class="stat-theme-meta">
+                  <span class="stat-theme-seen">104/160</span>
+                  <span class="stat-theme-score" style="color:var(--warning)">65%</span>
+                </div>
+              </div>
+              <div class="pbar" style="height:7px"><div class="pbar-fill" data-val="65" style="background:var(--warning)"></div></div>
+            </div>
+            <div class="stat-theme-row">
+              <div class="stat-theme-header">
+                <span class="stat-theme-name">Les marchés financiers</span>
+                <div class="stat-theme-meta">
+                  <span class="stat-theme-seen">86/120</span>
+                  <span class="stat-theme-score" style="color:var(--warning)">72%</span>
+                </div>
+              </div>
+              <div class="pbar" style="height:7px"><div class="pbar-fill" data-val="72" style="background:var(--warning)"></div></div>
+            </div>
+            <div class="stat-theme-row">
+              <div class="stat-theme-header">
+                <span class="stat-theme-name">L'analyse financière</span>
+                <div class="stat-theme-meta">
+                  <span class="stat-theme-seen">46/95</span>
+                  <span class="stat-theme-score" style="color:var(--danger)">48%</span>
+                </div>
+              </div>
+              <div class="pbar" style="height:7px"><div class="pbar-fill" data-val="48" style="background:var(--danger)"></div></div>
+            </div>
+            <div class="stat-theme-row">
+              <div class="stat-theme-header">
+                <span class="stat-theme-name">La gestion de portefeuille</span>
+                <div class="stat-theme-meta">
+                  <span class="stat-theme-seen">52/95</span>
+                  <span class="stat-theme-score" style="color:var(--warning)">55%</span>
+                </div>
+              </div>
+              <div class="pbar" style="height:7px"><div class="pbar-fill" data-val="55" style="background:var(--warning)"></div></div>
+            </div>
+            <div class="stat-theme-row">
+              <div class="stat-theme-header">
+                <span class="stat-theme-name">Les risques</span>
+                <div class="stat-theme-meta">
+                  <span class="stat-theme-seen">64/80</span>
+                  <span class="stat-theme-score" style="color:var(--success)">80%</span>
+                </div>
+              </div>
+              <div class="pbar" style="height:7px"><div class="pbar-fill" data-val="80" style="background:var(--success)"></div></div>
+            </div>
+            <div class="stat-theme-row">
+              <div class="stat-theme-header">
+                <span class="stat-theme-name">La conformité et la déontologie</span>
+                <div class="stat-theme-meta">
+                  <span class="stat-theme-seen">55/80</span>
+                  <span class="stat-theme-score" style="color:var(--warning)">69%</span>
+                </div>
+              </div>
+              <div class="pbar" style="height:7px"><div class="pbar-fill" data-val="69" style="background:var(--warning)"></div></div>
+            </div>
+            <div class="stat-theme-row" style="margin-bottom:0">
+              <div class="stat-theme-header">
+                <span class="stat-theme-name">La finance durable</span>
+                <div class="stat-theme-meta">
+                  <span class="stat-theme-seen">9/30</span>
+                  <span class="stat-theme-score" style="color:var(--danger)">30%</span>
+                </div>
+              </div>
+              <div class="pbar" style="height:7px"><div class="pbar-fill" data-val="30" style="background:var(--danger)"></div></div>
+            </div>
+
+            <div class="stats-legend">
+              <div class="stats-legend-item"><span class="stats-legend-dot" style="background:var(--success)"></span>Maîtrisé ≥75%</div>
+              <div class="stats-legend-item"><span class="stats-legend-dot" style="background:var(--warning)"></span>En cours 50–74%</div>
+              <div class="stats-legend-item"><span class="stats-legend-dot" style="background:var(--danger)"></span>À travailler &lt;50%</div>
+            </div>
+          </div>
+
+          <!-- Statistiques rapides -->
+          <div class="card">
+            <div class="card-title">Statistiques rapides</div>
+            <div class="card-subtitle">Résumé de votre activité.</div>
+            <div class="quick-stat-row">
+              <span class="quick-stat-label">Questions répondues</span>
+              <span class="quick-stat-val">347 / ~600</span>
+            </div>
+            <div class="quick-stat-row">
+              <span class="quick-stat-label">Score moyen</span>
+              <span class="quick-stat-val" style="color:var(--warning)">71%</span>
+            </div>
+            <div class="quick-stat-row">
+              <span class="quick-stat-label">Temps moyen / question</span>
+              <span class="quick-stat-val">38 sec</span>
+            </div>
+            <div class="quick-stat-row">
+              <span class="quick-stat-label">Questions maîtrisées</span>
+              <span class="quick-stat-val" style="color:var(--success)">124</span>
+            </div>
+            <div class="quick-stat-row">
+              <span class="quick-stat-label">Questions à revoir</span>
+              <span class="quick-stat-val" style="color:var(--danger)">87</span>
+            </div>
+            <div class="quick-stat-row">
+              <span class="quick-stat-label">Meilleur score examen</span>
+              <span class="quick-stat-val" style="color:var(--warning)">74%</span>
+            </div>
+            <div class="quick-stat-row">
+              <span class="quick-stat-label">Streak actuel</span>
+              <span class="quick-stat-val">🔥 7 jours</span>
+            </div>
+            <div class="quick-stat-row">
+              <span class="quick-stat-label">Record de streak</span>
+              <span class="quick-stat-val">12 jours</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─ Mon compte ─ -->
+      <section id="s-account" style="scroll-margin-top:20px">
+        <div class="section-label">Mon compte</div>
+        <div class="grid-2">
+
+          <!-- Informations personnelles -->
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px">Informations personnelles</div>
+            <div class="account-field">
+              <span class="account-field-label">Nom</span>
+              <span class="account-field-val">Alexandre Dubois</span>
+            </div>
+            <div class="account-field">
+              <span class="account-field-label">Email</span>
+              <span class="account-field-val">a.dubois@banque.fr</span>
+            </div>
+            <div class="account-field" style="margin-bottom:0">
+              <span class="account-field-label">Membre depuis</span>
+              <span class="account-field-val">Mai 2026</span>
+            </div>
+          </div>
+
+          <!-- Abonnement -->
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px">Abonnement</div>
+            <div class="subscription-header">
+              <div>
+                <div class="subscription-name">Certification AMF — 34,99 €/mois</div>
+                <div class="subscription-renewal">Renouvellement le 24 juillet 2026</div>
+              </div>
+              <span class="badge badge-active">Actif</span>
+            </div>
+            <div class="subscription-actions">
+              <button class="btn-danger-outline" style="padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans)">
+                Résilier l'abonnement
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /dash-body -->
+  </main><!-- /main -->
+
+  <script>
+    /* ── Data ─── */
+    const THEMES = [
+      { num: 1, name: 'Cadre réglementaire',  score: 78 },
+      { num: 2, name: 'Produits financiers',  score: 65 },
+      { num: 3, name: 'Marchés financiers',   score: 72 },
+      { num: 4, name: 'Analyse financière',   score: 48 },
+      { num: 5, name: 'Gestion portefeuille', score: 55 },
+      { num: 6, name: 'Les risques',          score: 80 },
+      { num: 7, name: 'Conformité',           score: 69 },
+      { num: 8, name: 'Finance durable',      score: 30 },
+    ];
+
+    function scoreColor(v) {
+      return v >= 75 ? 'var(--success)' : v >= 50 ? 'var(--warning)' : 'var(--danger)';
+    }
+
+    /* ── Build theme chip pickers ─── */
+    function buildPicker(containerId) {
+      const el = document.getElementById(containerId);
+      if (!el) return;
+      el.innerHTML = THEMES.map(t => `
+        <div class="theme-chip" role="checkbox" aria-checked="false"
+             data-picker="${containerId}" onclick="toggleChip(this)">
+          <div class="chip-left">
+            <div class="chip-num">${t.num}</div>
+            <span class="chip-name">${t.name}</span>
+          </div>
+          <div class="chip-right">
+            <span class="chip-score" style="color:${scoreColor(t.score)}">${t.score}%</span>
+            <div class="chip-check"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    buildPicker('picker-overview');
+    buildPicker('picker-training');
+
+    function toggleChip(chip) {
+      chip.classList.toggle('selected');
+      chip.setAttribute('aria-checked', chip.classList.contains('selected'));
+      updatePickerLabel(chip.dataset.picker);
+    }
+
+    function updatePickerLabel(pickerId) {
+      const picker = document.getElementById(pickerId);
+      if (!picker) return;
+      const suffix = pickerId.split('-')[1]; // 'overview' or 'training'
+      const labelEl = document.getElementById('count-' + suffix);
+      if (!labelEl) return;
+      const n = picker.querySelectorAll('.theme-chip.selected').length;
+      if (n === 0)      labelEl.textContent = 'Tous les thèmes · aucune sélection';
+      else if (n === 1) labelEl.textContent = '1 thème sélectionné';
+      else              labelEl.textContent = n + ' thèmes sélectionnés';
+    }
+
+    /* ── Count selector ─── */
+    function selectCount(btn, group) {
+      const selector = btn.closest('.count-selector');
+      selector.querySelectorAll('.count-opt').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    }
+
+    /* ── Sidebar navigation ─── */
+    const NAV_IDS = ['s-overview', 's-exams', 's-training', 's-stats', 's-account'];
+
+    function setActiveNav(id) {
+      document.querySelectorAll('.sb-nav-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.target === id);
+      });
+    }
+
+    function navigateTo(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setActiveNav(id);
+      }
+    }
+
+    // Update active nav on scroll via IntersectionObserver
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) setActiveNav(e.target.id); });
+    }, { rootMargin: '-25% 0px -65% 0px' });
+
+    NAV_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    /* ── Progress bar animation ─── */
+    function animateBars() {
+      document.querySelectorAll('.pbar-fill[data-val]').forEach(fill => {
+        fill.style.width = fill.dataset.val + '%';
+      });
+    }
+    // Double rAF ensures transition triggers after first paint
+    requestAnimationFrame(() => requestAnimationFrame(animateBars));
+
+    /* ── KPI counter animation ─── */
+    function animateCounter(el, target, suffix, duration) {
+      const start = performance.now();
+      const step = now => {
+        const t = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - t, 3);
+        el.textContent = Math.round(target * ease) + (suffix || '');
+        if (t < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+
+    document.querySelectorAll('[data-counter]').forEach(el => {
+      const target = parseInt(el.dataset.counter, 10);
+      const suffix = el.dataset.suffix || '';
+      animateCounter(el, target, suffix, 800);
+    });
+
+    /* ── Recommendation banner ─── */
+    function dismissBanner() {
+      const banner = document.getElementById('recoBanner');
+      banner.classList.add('dismissed');
+      localStorage.setItem('certim_reco_dismissed', '1');
+    }
+    if (localStorage.getItem('certim_reco_dismissed') === '1') {
+      document.getElementById('recoBanner').classList.add('dismissed');
+    }
+  </script>
+
+</body>
+</html>

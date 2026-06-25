@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connexion — CertIM</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><text y='32' font-size='32'>📊</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ── Left panel (navy) ── */
+  .l-left {
+    width: 50%;
+    background: var(--navy);
+    background-image:
+      linear-gradient(135deg, #04091A 0%, #071020 60%, #0C1D38 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 48px;
+    min-height: 100vh;
+  }
+  /* subtle grid texture */
+  .l-left::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(240,235,224,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(240,235,224,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+  .l-left-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .l-logo {
+    font-weight: 800;
+    font-size: 28px;
+    color: var(--cream);
+    letter-spacing: -0.02em;
+  }
+  .l-logo span { color: var(--gold); }
+
+  .l-quote {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .l-quote-text {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--cream);
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+  }
+  .l-quote-author {
+    font-size: 13px;
+    color: var(--blue-l);
+    font-weight: 500;
+  }
+
+  .l-benefits {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .l-benefit {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .l-benefit-check {
+    width: 22px; height: 22px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-top: 1px;
+  }
+  .l-benefit-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--cream);
+    line-height: 1.5;
+  }
+  .l-benefit-text strong { color: var(--gold); font-weight: 700; }
+
+  .l-footer-note {
+    font-size: 12px;
+    color: var(--blue-m);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Right panel (white/beige) ── */
+  .l-right {
+    width: 50%;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .l-form-box {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  /* ── Tabs ── */
+  .l-tabs {
+    display: flex;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 28px;
+    gap: 4px;
+  }
+  .l-tab {
+    flex: 1;
+    padding: 9px 12px;
+    border: none;
+    background: transparent;
+    border-radius: 7px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--blue-l);
+    cursor: pointer;
+    transition: background 150ms, color 150ms;
+    text-align: center;
+  }
+  .l-tab.active {
+    background: var(--navy);
+    color: var(--gold);
+  }
+  .l-tab:not(.active):hover { background: var(--bg); color: var(--navy); }
+
+  /* ── Form sections ── */
+  .l-section { display: none; }
+  .l-section.active { display: block; }
+
+  .l-form-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+  .l-form-sub {
+    font-size: 14px;
+    color: var(--blue-l);
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  /* ── Form fields ── */
+  .l-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .l-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+  }
+  .l-input {
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--navy);
+    background: #fff;
+    outline: none;
+    transition: border-color 150ms, box-shadow 150ms;
+  }
+  .l-input:focus {
+    border-color: var(--navy);
+    box-shadow: 0 0 0 3px rgba(4,9,26,0.08);
+  }
+  .l-input::placeholder { color: var(--blue-l); }
+
+  .l-forgot {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--blue-l);
+    text-decoration: none;
+    text-align: right;
+    display: block;
+    margin-top: -8px;
+    margin-bottom: 20px;
+    transition: color 150ms;
+  }
+  .l-forgot:hover { color: var(--navy); }
+
+  .l-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* ── Submit button ── */
+  .l-submit {
+    width: 100%;
+    padding: 14px;
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 150ms, transform 150ms;
+    margin-top: 8px;
+    margin-bottom: 20px;
+  }
+  .l-submit:hover { background: var(--gold-d); transform: translateY(-1px); }
+  .l-submit:active { transform: translateY(0); }
+
+  /* ── Separator ── */
+  .l-sep {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .l-sep-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .l-sep-text {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--blue-l);
+    white-space: nowrap;
+  }
+
+  /* ── Google button ── */
+  .l-google {
+    width: 100%;
+    padding: 13px;
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--navy);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: border-color 150ms, background 150ms, transform 150ms;
+  }
+  .l-google:hover { border-color: var(--navy); background: var(--bg); transform: translateY(-1px); }
+  .l-google-icon {
+    width: 18px; height: 18px;
+    flex-shrink: 0;
+  }
+
+  /* ── Checkbox ── */
+  .l-checkbox-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .l-checkbox {
+    width: 16px; height: 16px;
+    accent-color: var(--navy);
+    flex-shrink: 0;
+    margin-top: 2px;
+    cursor: pointer;
+  }
+  .l-checkbox-label {
+    font-size: 12px;
+    color: var(--blue-l);
+    line-height: 1.5;
+  }
+  .l-checkbox-label a { color: var(--navy); text-decoration: underline; }
+
+  /* ── Toggle link ── */
+  .l-toggle {
+    text-align: center;
+    font-size: 13px;
+    color: var(--blue-l);
+    margin-top: 20px;
+  }
+  .l-toggle a {
+    color: var(--navy);
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .l-toggle a:hover { text-decoration: underline; }
+
+  /* ── Error / success states (demo) ── */
+  .l-msg {
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .l-msg.error { background: #FEF2F2; color: var(--danger); border: 1px solid #FECACA; display: block; }
+  .l-msg.success { background: #F0FDF4; color: var(--success); border: 1px solid #BBF7D0; display: block; }
+</style>
+</head>
+<body>
+
+<!-- Left panel -->
+<div class="l-left">
+  <div class="l-left-content">
+    <div class="l-logo">Cert<span>IM</span></div>
+
+    <div class="l-quote">
+      <div class="l-quote-text">
+        "La certification AMF, c'est la clé qui ouvre les portes de la finance professionnelle."
+      </div>
+      <div class="l-quote-author">— Plateforme de préparation n°1 en France</div>
+    </div>
+
+    <div class="l-benefits">
+      <div class="l-benefit">
+        <div class="l-benefit-check">✓</div>
+        <div class="l-benefit-text">
+          <strong>600+ questions</strong> rédigées par des experts AMF et régulièrement mises à jour
+        </div>
+      </div>
+      <div class="l-benefit">
+        <div class="l-benefit-check">✓</div>
+        <div class="l-benefit-text">
+          <strong>Examens blancs</strong> reproduisant fidèlement le format officiel AMF (120 questions, 2h30)
+        </div>
+      </div>
+      <div class="l-benefit">
+        <div class="l-benefit-check">✓</div>
+        <div class="l-benefit-text">
+          <strong>Suivi personnalisé</strong> de vos progrès par thème avec recommandations intelligentes
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="l-footer-note">© 2025 CertIM — Tous droits réservés</div>
+</div>
+
+<!-- Right panel -->
+<div class="l-right">
+  <div class="l-form-box">
+
+    <!-- Tabs -->
+    <div class="l-tabs">
+      <button class="l-tab active" onclick="switchTab('login')">Se connecter</button>
+      <button class="l-tab" onclick="switchTab('signup')">S'inscrire</button>
+    </div>
+
+    <!-- Error/success message -->
+    <div class="l-msg" id="formMsg"></div>
+
+    <!-- Login form -->
+    <div class="l-section active" id="loginSection">
+      <div class="l-form-title">Bon retour !</div>
+      <div class="l-form-sub">Connectez-vous pour reprendre votre préparation.</div>
+
+      <form onsubmit="handleLogin(event)" novalidate>
+        <div class="l-field">
+          <label class="l-label" for="loginEmail">Adresse e-mail</label>
+          <input class="l-input" type="email" id="loginEmail" placeholder="prenom.nom@exemple.fr" autocomplete="email" required>
+        </div>
+        <div class="l-field">
+          <label class="l-label" for="loginPassword">Mot de passe</label>
+          <input class="l-input" type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required>
+        </div>
+        <a href="#" class="l-forgot">Mot de passe oublié ?</a>
+        <button type="submit" class="l-submit">Se connecter →</button>
+      </form>
+
+      <div class="l-sep">
+        <div class="l-sep-line"></div>
+        <span class="l-sep-text">ou continuer avec</span>
+        <div class="l-sep-line"></div>
+      </div>
+
+      <button class="l-google" onclick="handleGoogle()">
+        <svg class="l-google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Continuer avec Google
+      </button>
+
+      <div class="l-toggle">Pas encore de compte ? <a onclick="switchTab('signup')">S'inscrire gratuitement</a></div>
+    </div>
+
+    <!-- Signup form -->
+    <div class="l-section" id="signupSection">
+      <div class="l-form-title">Créer votre compte</div>
+      <div class="l-form-sub">Accédez à 600+ questions AMF dès aujourd'hui.</div>
+
+      <form onsubmit="handleSignup(event)" novalidate>
+        <div class="l-row-2">
+          <div class="l-field">
+            <label class="l-label" for="signupFirst">Prénom</label>
+            <input class="l-input" type="text" id="signupFirst" placeholder="Jean" autocomplete="given-name" required>
+          </div>
+          <div class="l-field">
+            <label class="l-label" for="signupLast">Nom</label>
+            <input class="l-input" type="text" id="signupLast" placeholder="Dupont" autocomplete="family-name" required>
+          </div>
+        </div>
+        <div class="l-field">
+          <label class="l-label" for="signupEmail">Adresse e-mail</label>
+          <input class="l-input" type="email" id="signupEmail" placeholder="prenom.nom@exemple.fr" autocomplete="email" required>
+        </div>
+        <div class="l-field">
+          <label class="l-label" for="signupPassword">Mot de passe</label>
+          <input class="l-input" type="password" id="signupPassword" placeholder="8 caractères minimum" autocomplete="new-password" required minlength="8">
+        </div>
+
+        <div class="l-checkbox-row">
+          <input type="checkbox" class="l-checkbox" id="signupTerms" required>
+          <label class="l-checkbox-label" for="signupTerms">
+            J'accepte les <a href="#">conditions d'utilisation</a> et la <a href="#">politique de confidentialité</a> de CertIM.
+          </label>
+        </div>
+
+        <button type="submit" class="l-submit">Créer mon compte →</button>
+      </form>
+
+      <div class="l-sep">
+        <div class="l-sep-line"></div>
+        <span class="l-sep-text">ou continuer avec</span>
+        <div class="l-sep-line"></div>
+      </div>
+
+      <button class="l-google" onclick="handleGoogle()">
+        <svg class="l-google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Continuer avec Google
+      </button>
+
+      <div class="l-toggle">Déjà un compte ? <a onclick="switchTab('login')">Se connecter</a></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function switchTab(tab) {
+  document.querySelectorAll('.l-tab').forEach((t, i) => {
+    t.classList.toggle('active', (i === 0) === (tab === 'login'));
+  });
+  document.getElementById('loginSection').classList.toggle('active', tab === 'login');
+  document.getElementById('signupSection').classList.toggle('active', tab === 'signup');
+  clearMsg();
+}
+
+function showMsg(type, text) {
+  const el = document.getElementById('formMsg');
+  el.className = 'l-msg ' + type;
+  el.textContent = text;
+}
+function clearMsg() {
+  const el = document.getElementById('formMsg');
+  el.className = 'l-msg';
+  el.textContent = '';
+}
+
+function handleLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPassword').value;
+  if (!email || !pass) { showMsg('error', 'Veuillez remplir tous les champs.'); return; }
+  // Demo: any credentials work
+  showMsg('success', 'Connexion réussie ! Redirection...');
+  setTimeout(() => window.location.href = 'dashboard.html', 1200);
+}
+
+function handleSignup(e) {
+  e.preventDefault();
+  const first = document.getElementById('signupFirst').value.trim();
+  const last  = document.getElementById('signupLast').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const pass  = document.getElementById('signupPassword').value;
+  const terms = document.getElementById('signupTerms').checked;
+
+  if (!first || !last || !email || !pass) { showMsg('error', 'Veuillez remplir tous les champs.'); return; }
+  if (pass.length < 8) { showMsg('error', 'Le mot de passe doit contenir au moins 8 caractères.'); return; }
+  if (!terms) { showMsg('error', 'Veuillez accepter les conditions d\'utilisation.'); return; }
+
+  showMsg('success', 'Compte créé avec succès ! Redirection...');
+  setTimeout(() => window.location.href = 'dashboard.html', 1200);
+}
+
+function handleGoogle() {
+  showMsg('success', 'Authentification Google... Redirection vers le dashboard.');
+  setTimeout(() => window.location.href = 'dashboard.html', 1200);
+}
+</script>
+</body>
+</html>

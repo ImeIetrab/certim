@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examen Blanc AMF — CertIM</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><text y='32' font-size='32'>📊</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--navy);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ── */
+  .ex-header {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    height: 60px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    gap: 16px;
+  }
+  .ex-logo { font-weight: 800; font-size: 18px; color: var(--navy); letter-spacing: -0.02em; flex-shrink: 0; }
+  .ex-logo span { color: var(--gold); }
+  .ex-timer-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .ex-timer-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--blue-l);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .ex-timer {
+    font-size: 22px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--navy);
+    letter-spacing: -0.01em;
+    transition: color 0.3s;
+  }
+  .ex-timer.warning { color: var(--danger); }
+  @keyframes pulse-timer {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .ex-timer.pulse { animation: pulse-timer 1s ease infinite; }
+  .ex-qcount {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--blue-l);
+    flex-shrink: 0;
+    min-width: 120px;
+    text-align: right;
+  }
+  .ex-qcount strong { color: var(--navy); }
+
+  /* ── Layout ── */
+  .ex-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  /* ── Main zone ── */
+  .ex-main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 40px 20px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .ex-zone {
+    width: 100%;
+    max-width: 720px;
+  }
+
+  /* ── Question badge & number ── */
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .q-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    background: var(--navy);
+    color: var(--cream);
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+  .q-num {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--blue-l);
+  }
+  .q-flag {
+    margin-left: auto;
+    padding: 5px 12px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--blue-l);
+    cursor: pointer;
+    transition: border-color 150ms, color 150ms, background 150ms;
+  }
+  .q-flag:hover { border-color: var(--danger); color: var(--danger); }
+  .q-flag.flagged { border-color: var(--danger); color: var(--danger); background: #FEF2F2; }
+
+  /* ── Question text ── */
+  .q-text {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.6;
+    color: var(--navy);
+    margin-bottom: 24px;
+  }
+
+  /* ── Answer cards ── */
+  .answers { display: flex; flex-direction: column; gap: 10px; }
+  .answer-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: border-color 150ms, background 150ms, transform 150ms;
+    user-select: none;
+  }
+  .answer-card:hover { border-color: var(--navy); transform: translateY(-1px); }
+  .answer-card.selected {
+    border-color: var(--gold);
+    background: rgba(200,184,130,0.08);
+  }
+  .answer-letter {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: var(--navy);
+    flex-shrink: 0;
+    transition: background 150ms, border-color 150ms, color 150ms;
+  }
+  .answer-card.selected .answer-letter {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--navy);
+  }
+  .answer-text { font-size: 14px; font-weight: 400; color: var(--navy); line-height: 1.5; }
+
+  /* ── Navigation buttons ── */
+  .q-nav {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+  }
+  .btn-prev, .btn-next {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: background 150ms, transform 150ms;
+  }
+  .btn-prev {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    color: var(--navy);
+  }
+  .btn-prev:hover { border-color: var(--navy); transform: translateY(-1px); }
+  .btn-next {
+    flex: 1;
+    background: var(--navy);
+    color: var(--gold);
+  }
+  .btn-next:hover { background: #071a30; transform: translateY(-1px); }
+  .btn-end {
+    padding: 12px 20px;
+    background: transparent;
+    border: 1.5px solid var(--danger);
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--danger);
+    cursor: pointer;
+    transition: background 150ms, transform 150ms;
+    white-space: nowrap;
+  }
+  .btn-end:hover { background: #FEF2F2; transform: translateY(-1px); }
+
+  /* ── Right panel ── */
+  .ex-panel {
+    width: 220px;
+    flex-shrink: 0;
+    background: #fff;
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: width 0.25s ease;
+    position: relative;
+  }
+  .ex-panel.collapsed { width: 0; }
+  .panel-header {
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .panel-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--blue-l);
+    white-space: nowrap;
+  }
+  .panel-toggle {
+    width: 24px; height: 24px;
+    border: none; background: transparent;
+    color: var(--blue-l); font-size: 14px;
+    cursor: pointer; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 150ms, color 150ms;
+    flex-shrink: 0;
+  }
+  .panel-toggle:hover { background: var(--bg); color: var(--navy); }
+
+  .panel-legend {
+    padding: 10px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 10px; font-weight: 500; color: var(--blue-l);
+    white-space: nowrap;
+  }
+  .legend-dot {
+    width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0;
+  }
+  .legend-dot.unanswered { background: var(--bg); border: 1px solid var(--border); }
+  .legend-dot.answered { background: var(--gold); }
+  .legend-dot.flagged-dot { background: var(--danger); }
+  .legend-dot.current { background: var(--navy); }
+
+  .panel-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px;
+  }
+  .panel-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+  }
+  .panel-cell {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: transform 150ms, border-color 150ms;
+    background: var(--bg);
+    color: var(--blue-l);
+    border-color: var(--border);
+  }
+  .panel-cell:hover { transform: scale(1.1); border-color: var(--navy); }
+  .panel-cell.answered { background: rgba(200,184,130,0.25); border-color: var(--gold); color: var(--navy); }
+  .panel-cell.flagged-cell { background: #FEF2F2; border-color: var(--danger); color: var(--danger); }
+  .panel-cell.current-cell { background: var(--navy); border-color: var(--navy); color: var(--cream); }
+
+  /* Panel toggle button when collapsed */
+  .panel-open-btn {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-right: none;
+    border-radius: 6px 0 0 6px;
+    padding: 12px 6px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--blue-l);
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+  }
+  .ex-panel.collapsed ~ .panel-open-btn { display: flex; }
+
+  /* ── Confirm modal ── */
+  .modal-backdrop {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(4,9,26,0.55);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal-box {
+    background: #fff;
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 440px;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+  .modal-icon { font-size: 32px; text-align: center; }
+  .modal-title { font-size: 20px; font-weight: 700; text-align: center; color: var(--navy); }
+  .modal-text { font-size: 14px; color: var(--blue-l); text-align: center; line-height: 1.6; }
+  .modal-stats {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .modal-stat {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+  .modal-stat-val { font-size: 20px; font-weight: 800; color: var(--navy); }
+  .modal-stat-label { font-size: 11px; color: var(--blue-l); font-weight: 500; margin-top: 2px; }
+  .modal-actions { display: flex; flex-direction: column; gap: 8px; }
+  .modal-confirm {
+    padding: 14px;
+    background: var(--danger);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 150ms;
+  }
+  .modal-confirm:hover { background: #dc2626; }
+  .modal-cancel {
+    padding: 14px;
+    background: transparent;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--navy);
+    cursor: pointer;
+    transition: border-color 150ms;
+  }
+  .modal-cancel:hover { border-color: var(--navy); }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="ex-header">
+  <div class="ex-logo">Cert<span>IM</span> <span style="font-size:12px;font-weight:500;color:var(--blue-l);margin-left:6px">Examen blanc</span></div>
+  <div class="ex-timer-wrap">
+    <span class="ex-timer-label">Temps restant</span>
+    <div class="ex-timer" id="timer">2:30:00</div>
+  </div>
+  <div class="ex-qcount">Question <strong id="qNumDisplay">1</strong> / <strong>120</strong></div>
+</header>
+
+<!-- Layout -->
+<div class="ex-layout">
+
+  <!-- Main -->
+  <main class="ex-main">
+    <div class="ex-zone" id="exZone">
+      <!-- injected by JS -->
+    </div>
+  </main>
+
+  <!-- Right panel -->
+  <aside class="ex-panel" id="exPanel">
+    <div class="panel-header">
+      <span class="panel-title">Navigation</span>
+      <button class="panel-toggle" onclick="togglePanel()" title="Masquer le panneau">‹</button>
+    </div>
+    <div class="panel-legend">
+      <div class="legend-item"><div class="legend-dot current"></div> Actuelle</div>
+      <div class="legend-item"><div class="legend-dot answered"></div> Répondue</div>
+      <div class="legend-item"><div class="legend-dot flagged-dot"></div> Signalée</div>
+      <div class="legend-item"><div class="legend-dot unanswered"></div> Non répondue</div>
+    </div>
+    <div class="panel-scroll">
+      <div class="panel-grid" id="panelGrid">
+        <!-- cells injected by JS -->
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<!-- Confirm modal -->
+<div class="modal-backdrop" id="confirmModal">
+  <div class="modal-box">
+    <div class="modal-icon">⚠️</div>
+    <div class="modal-title">Terminer l'examen ?</div>
+    <div class="modal-text">Vous avez encore des questions sans réponse. Voulez-vous vraiment soumettre votre examen ?</div>
+    <div class="modal-stats">
+      <div class="modal-stat">
+        <div class="modal-stat-val" id="mAnswered">0</div>
+        <div class="modal-stat-label">Répondues</div>
+      </div>
+      <div class="modal-stat">
+        <div class="modal-stat-val" id="mUnanswered">120</div>
+        <div class="modal-stat-label">Sans réponse</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-confirm" onclick="submitExamen()">Terminer et voir les résultats</button>
+      <button class="modal-cancel" onclick="closeModal()">Continuer l'examen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Questions data ────────────────────────────────────────────────────────────
+// 120-question mock exam; we generate them from the question pool repeated + labeled
+const THEMES = [
+  'Cadre réglementaire','Analyse financière','Gestion de portefeuille',
+  'Produits financiers','Marchés financiers','Fiscalité',
+  'Finance durable','Éthique et déontologie'
+];
+
+const BASE_QUESTIONS = [
+  { texte: "Quel est le rôle principal de l'AMF ?", reponses: ["Réguler les marchés financiers français","Gérer la politique monétaire","Superviser les banques commerciales","Fixer les taux d'intérêt"], bonne: 0 },
+  { texte: "Qu'est-ce qu'une OPCVM ?", reponses: ["Un organisme de placement collectif en valeurs mobilières","Une obligation à court terme","Un produit dérivé sur actions","Un compte d'épargne réglementé"], bonne: 0 },
+  { texte: "Le ratio Sharpe mesure :", reponses: ["La performance ajustée du risque","La liquidité d'un portefeuille","Le niveau d'endettement","La duration d'une obligation"], bonne: 0 },
+  { texte: "La duration d'une obligation est :", reponses: ["La sensibilité au taux d'intérêt","La durée jusqu'à l'échéance","Le coupon annuel","Le prix de remboursement"], bonne: 0 },
+  { texte: "Qu'est-ce que le market making ?", reponses: ["L'activité de tenue de marché avec cotation bid/ask","La manipulation des cours","La gestion indicielle","L'arbitrage statistique"], bonne: 0 },
+  { texte: "Le règlement MIFID II encadre :", reponses: ["Les marchés d'instruments financiers en Europe","Les fonds de pension","La fiscalité des OPCVM","Les normes comptables IFRS"], bonne: 0 },
+  { texte: "Un CDS (Credit Default Swap) est :", reponses: ["Un produit dérivé de crédit","Une action préférentielle","Un bon du Trésor","Un fonds indiciel"], bonne: 0 },
+  { texte: "La règle des 5/10/40 s'applique aux :", reponses: ["OPCVM — diversification minimale des émetteurs","Obligations convertibles","Plans d'épargne retraite","Contrats à terme"], bonne: 0 },
+  { texte: "La VaR (Value at Risk) quantifie :", reponses: ["La perte maximale probable sur un horizon donné","La valeur actuelle nette","Le rendement espéré","La volatilité implicite"], bonne: 0 },
+  { texte: "Le Label ISR (Investissement Socialement Responsable) garantit :", reponses: ["Une intégration des critères ESG dans la gestion","Un rendement supérieur à l'indice","Une exonération fiscale","Un portefeuille sans volatilité"], bonne: 0 },
+];
+
+// Generate 120 questions by cycling + varying
+const QUESTIONS = [];
+for (let i = 0; i < 120; i++) {
+  const base = BASE_QUESTIONS[i % BASE_QUESTIONS.length];
+  const theme = THEMES[Math.floor(i / 15) % THEMES.length];
+  QUESTIONS.push({
+    id: i + 1,
+    theme,
+    texte: base.texte,
+    reponses: base.reponses,
+    bonne: base.bonne,
+  });
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let currentQ = 0;
+const answers  = new Array(120).fill(null); // null = unanswered, 0-3 = answer index
+const flagged  = new Array(120).fill(false);
+const LETTERS  = ['A','B','C','D'];
+
+// ── Timer ──────────────────────────────────────────────────────────────────────
+let totalSeconds = 2 * 3600 + 30 * 60; // 2h30
+const timerEl = document.getElementById('timer');
+
+function formatTimer(s) {
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+
+const timerInterval = setInterval(() => {
+  totalSeconds--;
+  if (totalSeconds <= 0) {
+    clearInterval(timerInterval);
+    submitExamen();
+    return;
+  }
+  timerEl.textContent = formatTimer(totalSeconds);
+  if (totalSeconds <= 15 * 60) {
+    timerEl.classList.add('warning', 'pulse');
+  }
+}, 1000);
+
+timerEl.textContent = formatTimer(totalSeconds);
+
+// ── Render question ───────────────────────────────────────────────────────────
+function renderQ() {
+  const q = QUESTIONS[currentQ];
+  const sel = answers[currentQ];
+  const isFlagged = flagged[currentQ];
+
+  document.getElementById('qNumDisplay').textContent = currentQ + 1;
+
+  const zone = document.getElementById('exZone');
+  zone.innerHTML = `
+    <div class="q-meta">
+      <span class="q-badge">${q.theme}</span>
+      <span class="q-num">Question ${q.id} / 120</span>
+      <button class="q-flag ${isFlagged ? 'flagged' : ''}" onclick="toggleFlag()" id="flagBtn">
+        ${isFlagged ? '🚩 Signalée' : '⚑ Signaler'}
+      </button>
+    </div>
+    <div class="q-text">${q.texte}</div>
+    <div class="answers" id="answers">
+      ${q.reponses.map((r, i) => `
+        <div class="answer-card ${sel === i ? 'selected' : ''}" onclick="selectAnswer(${i})">
+          <div class="answer-letter">${LETTERS[i]}</div>
+          <div class="answer-text">${r}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="q-nav">
+      <button class="btn-prev" onclick="prevQ()" ${currentQ === 0 ? 'disabled style="opacity:0.4;cursor:not-allowed"' : ''}>← Précédente</button>
+      <button class="btn-next" onclick="nextQ()">
+        ${currentQ === 119 ? 'Dernière question' : 'Suivante →'}
+      </button>
+      <button class="btn-end" onclick="openConfirmModal()">Terminer l'examen</button>
+    </div>
+  `;
+  updatePanel();
+}
+
+// ── Answer selection ──────────────────────────────────────────────────────────
+function selectAnswer(idx) {
+  answers[currentQ] = idx;
+  renderQ();
+}
+
+// ── Flag ──────────────────────────────────────────────────────────────────────
+function toggleFlag() {
+  flagged[currentQ] = !flagged[currentQ];
+  renderQ();
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+function nextQ() {
+  if (currentQ < 119) { currentQ++; renderQ(); }
+}
+function prevQ() {
+  if (currentQ > 0) { currentQ--; renderQ(); }
+}
+function goToQ(n) {
+  currentQ = n;
+  renderQ();
+  // scroll main to top
+  document.querySelector('.ex-main').scrollTo(0, 0);
+}
+
+// ── Panel ─────────────────────────────────────────────────────────────────────
+let panelOpen = true;
+
+function togglePanel() {
+  panelOpen = !panelOpen;
+  const panel = document.getElementById('exPanel');
+  const btn = panel.querySelector('.panel-toggle');
+  panel.classList.toggle('collapsed', !panelOpen);
+  btn.textContent = panelOpen ? '›' : '‹';
+  // Actually flip: when panel is open, button shows collapse arrow ‹
+  btn.textContent = panelOpen ? '‹' : '›';
+}
+
+function updatePanel() {
+  const grid = document.getElementById('panelGrid');
+  grid.innerHTML = '';
+  for (let i = 0; i < 120; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'panel-cell';
+    cell.textContent = i + 1;
+    if (i === currentQ) cell.classList.add('current-cell');
+    else if (flagged[i]) cell.classList.add('flagged-cell');
+    else if (answers[i] !== null) cell.classList.add('answered');
+    cell.onclick = () => goToQ(i);
+    grid.appendChild(cell);
+  }
+}
+
+// ── Modal ─────────────────────────────────────────────────────────────────────
+function openConfirmModal() {
+  const answered = answers.filter(a => a !== null).length;
+  const unanswered = 120 - answered;
+  document.getElementById('mAnswered').textContent = answered;
+  document.getElementById('mUnanswered').textContent = unanswered;
+  document.getElementById('confirmModal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('confirmModal').classList.remove('open');
+}
+document.getElementById('confirmModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function submitExamen() {
+  clearInterval(timerInterval);
+
+  // Compute score
+  let correct = 0;
+  QUESTIONS.forEach((q, i) => { if (answers[i] === q.bonne) correct++; });
+  const answered = answers.filter(a => a !== null).length;
+  const timeSpent = (2 * 3600 + 30 * 60) - totalSeconds;
+
+  // Save results and redirect
+  const results = {
+    theme: 'Examen blanc AMF',
+    total: 120,
+    correct,
+    passed: 120 - answered,
+    totalTime: timeSpent,
+    results: QUESTIONS.map((q, i) => ({ q: i, correct: answers[i] === q.bonne })),
+    isExam: true,
+  };
+  sessionStorage.setItem('certim_results', JSON.stringify(results));
+  window.location.href = 'resultat.html';
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+renderQ();
+</script>
+</body>
+</html>

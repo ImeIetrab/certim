@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Résultats — CertIM</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><text y='32' font-size='32'>📊</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--navy);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ── */
+  .r-header {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .r-logo { font-weight: 800; font-size: 18px; color: var(--navy); letter-spacing: -0.02em; }
+  .r-logo span { color: var(--gold); }
+
+  /* ── Page layout ── */
+  .r-page {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 48px 20px 64px;
+  }
+  .r-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 620px;
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  /* ── Score circle ── */
+  .score-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .score-ring-wrap {
+    position: relative;
+    width: 160px;
+    height: 160px;
+  }
+  .score-ring-wrap svg {
+    transform: rotate(-90deg);
+    width: 160px;
+    height: 160px;
+  }
+  .score-ring-track {
+    fill: none;
+    stroke: var(--bg);
+    stroke-width: 12;
+  }
+  .score-ring-fill {
+    fill: none;
+    stroke-width: 12;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .score-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .score-pct {
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .score-label-small {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--blue-l);
+    margin-top: 2px;
+  }
+  .score-verdict {
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .score-verdict.green { color: var(--success); }
+  .score-verdict.orange { color: var(--warning); }
+  .score-verdict.red { color: var(--danger); }
+
+  /* ── Stats grid 2×2 ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .stat-cell {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .stat-cell-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--blue-l);
+  }
+  .stat-cell-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--navy);
+    letter-spacing: -0.02em;
+  }
+  .stat-cell-sub {
+    font-size: 12px;
+    color: var(--blue-l);
+    font-weight: 500;
+  }
+
+  /* ── Comparison bar ── */
+  .compare-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .compare-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+  }
+  .compare-bar-wrap {
+    position: relative;
+    height: 8px;
+    background: var(--bg);
+    border-radius: 100px;
+    overflow: visible;
+  }
+  .compare-bar-prev {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    background: var(--border);
+    border-radius: 100px;
+    transition: width 0.8s ease;
+  }
+  .compare-bar-curr {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    border-radius: 100px;
+    transition: width 1s 0.2s ease;
+  }
+  .compare-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .compare-prev-label { color: var(--blue-l); }
+  .compare-curr-label { font-weight: 700; }
+  .compare-delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 100px;
+    background: var(--bg);
+    align-self: flex-start;
+  }
+  .compare-delta.up { color: var(--success); }
+  .compare-delta.down { color: var(--danger); }
+  .compare-delta.same { color: var(--blue-l); }
+
+  /* ── Theme breakdown ── */
+  .themes-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 4px;
+  }
+  .theme-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .theme-row-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--navy);
+    width: 160px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .theme-row-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--bg);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .theme-row-fill {
+    height: 100%;
+    border-radius: 100px;
+    width: 0%;
+    transition: width 0.8s ease;
+  }
+  .theme-row-pct {
+    font-size: 12px;
+    font-weight: 700;
+    width: 36px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* ── CTAs ── */
+  .cta-row {
+    display: flex;
+    gap: 12px;
+  }
+  .btn-gold {
+    flex: 1;
+    padding: 14px 24px;
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 150ms ease, transform 150ms ease;
+  }
+  .btn-gold:hover { background: var(--gold-d); transform: translateY(-1px); }
+  .btn-outline {
+    flex: 1;
+    padding: 14px 24px;
+    background: transparent;
+    color: var(--navy);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+  }
+  .btn-outline:hover { border-color: var(--navy); background: var(--bg); transform: translateY(-1px); }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    border: none;
+    margin: 0;
+  }
+
+  /* ── No data state ── */
+  .no-data {
+    text-align: center;
+    color: var(--blue-l);
+    font-size: 14px;
+    padding: 16px 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="r-header">
+  <div class="r-logo">Cert<span>IM</span></div>
+</header>
+
+<!-- Page -->
+<main class="r-page">
+  <div class="r-card">
+
+    <!-- Score circle -->
+    <div class="score-section">
+      <div class="score-ring-wrap">
+        <svg viewBox="0 0 160 160">
+          <circle class="score-ring-track" cx="80" cy="80" r="68"/>
+          <circle class="score-ring-fill" id="ringFill" cx="80" cy="80" r="68"/>
+        </svg>
+        <div class="score-center">
+          <div class="score-pct" id="scorePct">0%</div>
+          <div class="score-label-small">Score</div>
+        </div>
+      </div>
+      <div class="score-verdict" id="scoreVerdict"></div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Stats 2×2 -->
+    <div class="stats-grid">
+      <div class="stat-cell">
+        <div class="stat-cell-label">Score</div>
+        <div class="stat-cell-value" id="statScore">—</div>
+        <div class="stat-cell-sub">sur 100 points</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-cell-label">Bonnes réponses</div>
+        <div class="stat-cell-value" id="statCorrect">—</div>
+        <div class="stat-cell-sub" id="statCorrectSub"></div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-cell-label">Temps moyen</div>
+        <div class="stat-cell-value" id="statAvgTime">—</div>
+        <div class="stat-cell-sub">par question</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-cell-label">Questions</div>
+        <div class="stat-cell-value" id="statTotal">—</div>
+        <div class="stat-cell-sub" id="statPassedSub"></div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Comparison vs previous session -->
+    <div class="compare-section" id="compareSection">
+      <div class="compare-title">Comparaison avec la session précédente</div>
+      <div class="compare-bar-wrap">
+        <div class="compare-bar-prev" id="barPrev"></div>
+        <div class="compare-bar-curr" id="barCurr"></div>
+      </div>
+      <div class="compare-labels">
+        <span class="compare-prev-label" id="labelPrev">Session précédente : —</span>
+        <span class="compare-curr-label" id="labelCurr">Cette session : —</span>
+      </div>
+      <div class="compare-delta" id="compareDelta"></div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Theme breakdown -->
+    <div class="themes-section" id="themesSection">
+      <div class="section-title">Répartition par thème</div>
+      <!-- rows injected by JS -->
+    </div>
+
+    <hr class="divider">
+
+    <!-- CTAs -->
+    <div class="cta-row">
+      <a href="question.html" class="btn-gold" id="btnRefaire">↺&nbsp; Refaire cette session</a>
+      <a href="dashboard.html" class="btn-outline">← Retour au dashboard</a>
+    </div>
+
+  </div>
+</main>
+
+<script>
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+const CIRCUMFERENCE = 2 * Math.PI * 68; // r=68
+
+function scoreColor(pct) {
+  if (pct >= 75) return { stroke: '#22C55E', css: 'green' };
+  if (pct >= 50) return { stroke: '#F59E0B', css: 'orange' };
+  return { stroke: '#EF4444', css: 'red' };
+}
+
+function verdictText(pct) {
+  if (pct >= 75) return 'Bonne session ! 🎉';
+  if (pct >= 50) return 'Presque ! Continuez ainsi.';
+  return 'À améliorer — ne lâchez pas !';
+}
+
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return m > 0 ? `${m}m ${s}s` : `${s}s`;
+}
+
+function animateCounter(el, target, suffix = '', duration = 800) {
+  const start = performance.now();
+  function tick(now) {
+    const t = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    el.textContent = Math.round(ease * target) + suffix;
+    if (t < 1) requestAnimationFrame(tick);
+    else el.textContent = target + suffix;
+  }
+  requestAnimationFrame(tick);
+}
+
+// ── Load session data ────────────────────────────────────────────────────────
+
+const raw = sessionStorage.getItem('certim_results');
+let data = null;
+
+// Mock previous session score for demo
+const PREV_SCORE = 55;
+
+if (raw) {
+  try { data = JSON.parse(raw); } catch(e) {}
+}
+
+// Fallback demo data if no session data
+if (!data) {
+  data = {
+    theme: 'Cadre réglementaire',
+    total: 10,
+    correct: 7,
+    passed: 0,
+    totalTime: 142,
+    results: [
+      { q: 0, correct: true }, { q: 1, correct: true }, { q: 2, correct: false },
+      { q: 3, correct: true }, { q: 4, correct: true }, { q: 5, correct: true },
+      { q: 6, correct: false }, { q: 7, correct: true }, { q: 8, correct: true },
+      { q: 9, correct: false }
+    ]
+  };
+}
+
+const scorePct = Math.round((data.correct / data.total) * 100);
+const col = scoreColor(scorePct);
+const avgTime = data.total > 0 ? Math.round(data.totalTime / data.total) : 0;
+const delta = scorePct - PREV_SCORE;
+
+// ── Render ───────────────────────────────────────────────────────────────────
+
+// Score circle
+const ring = document.getElementById('ringFill');
+ring.style.stroke = col.stroke;
+ring.style.strokeDasharray = CIRCUMFERENCE;
+ring.style.strokeDashoffset = CIRCUMFERENCE; // start fully hidden
+
+// Animate ring after paint
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    const offset = CIRCUMFERENCE * (1 - scorePct / 100);
+    ring.style.strokeDashoffset = offset;
+  });
+});
+
+// Animate score pct counter
+const scorePctEl = document.getElementById('scorePct');
+scorePctEl.style.color = col.stroke;
+animateCounter(scorePctEl, scorePct, '%', 1000);
+
+// Verdict
+const verdictEl = document.getElementById('scoreVerdict');
+verdictEl.textContent = verdictText(scorePct);
+verdictEl.className = 'score-verdict ' + col.css;
+
+// Stats
+animateCounter(document.getElementById('statScore'), scorePct, '%');
+animateCounter(document.getElementById('statCorrect'), data.correct);
+document.getElementById('statCorrectSub').textContent = `sur ${data.total} questions`;
+document.getElementById('statAvgTime').textContent = formatTime(avgTime);
+document.getElementById('statTotal').textContent = data.total;
+document.getElementById('statPassedSub').textContent = data.passed > 0
+  ? `${data.passed} passée${data.passed > 1 ? 's' : ''}`
+  : 'aucune passée';
+
+// Comparison
+const barPrev = document.getElementById('barPrev');
+const barCurr = document.getElementById('barCurr');
+const deltaEl  = document.getElementById('compareDelta');
+document.getElementById('labelPrev').textContent = `Session précédente : ${PREV_SCORE}%`;
+document.getElementById('labelCurr').textContent = `Cette session : ${scorePct}%`;
+
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    barPrev.style.width = PREV_SCORE + '%';
+    barCurr.style.width = scorePct + '%';
+  });
+});
+
+const currColor = col.stroke;
+barCurr.style.background = currColor;
+barPrev.style.background = '#D6CEBD';
+
+if (delta > 0) {
+  deltaEl.className = 'compare-delta up';
+  deltaEl.innerHTML = `▲ +${delta} points vs session précédente`;
+} else if (delta < 0) {
+  deltaEl.className = 'compare-delta down';
+  deltaEl.innerHTML = `▼ ${delta} points vs session précédente`;
+} else {
+  deltaEl.className = 'compare-delta same';
+  deltaEl.innerHTML = `= Même score que la session précédente`;
+}
+
+// Theme breakdown — group results by theme (single theme session here)
+const themesSection = document.getElementById('themesSection');
+const themes = [
+  { name: data.theme || 'Cadre réglementaire', pct: scorePct }
+];
+
+themes.forEach(th => {
+  const c = scoreColor(th.pct);
+  const row = document.createElement('div');
+  row.className = 'theme-row';
+  row.innerHTML = `
+    <div class="theme-row-name">${th.name}</div>
+    <div class="theme-row-bar"><div class="theme-row-fill" data-val="${th.pct}" style="background:${c.stroke}"></div></div>
+    <div class="theme-row-pct" style="color:${c.stroke}">${th.pct}%</div>
+  `;
+  themesSection.appendChild(row);
+});
+
+// Animate theme bars
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.theme-row-fill').forEach(el => {
+      el.style.width = el.dataset.val + '%';
+    });
+  });
+});
+
+// "Refaire" keeps same theme param if available
+const btnRefaire = document.getElementById('btnRefaire');
+if (data.theme) {
+  btnRefaire.href = `question.html?theme=${encodeURIComponent(data.theme)}`;
+}
+</script>
+</body>
+</html>

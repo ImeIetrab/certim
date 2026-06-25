@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Entraînement — CertIM</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><text y='32' font-size='32'>📊</text></svg>" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #04091A; --navy-mid: #071020; --navy-card: #0C1D38;
+      --cream: #F0EBE0; --blue-l: #7A9AB8; --blue-m: #3D5A78;
+      --gold: #C8B882; --bg: #F7F4EF; --white: #FFFFFF;
+      --border: #D6CEBD; --text: #04091A; --muted: #7A9AB8;
+      --green: #22C55E; --orange: #F59E0B; --red: #EF4444;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased; min-height:100vh; display:flex; flex-direction:column; }
+
+    /* ── Header ── */
+    .q-header {
+      background:var(--white); border-bottom:1px solid var(--border);
+      height:56px; display:flex; align-items:center; justify-content:space-between;
+      padding:0 2rem; position:sticky; top:0; z-index:100;
+    }
+    .logo { color:var(--navy); font-weight:800; font-size:18px; text-decoration:none; letter-spacing:-0.02em; }
+    .logo span { color:var(--gold); }
+    .q-header-center { font-size:14px; font-weight:600; color:var(--navy); }
+    .q-header-center span { color:var(--muted); font-weight:400; }
+    .btn-quit {
+      background:transparent; color:var(--muted); border:1px solid var(--border);
+      border-radius:6px; padding:6px 14px; font-size:13px; font-weight:600;
+      cursor:pointer; font-family:'Inter',sans-serif; text-decoration:none;
+      transition:all .15s; display:inline-block;
+    }
+    .btn-quit:hover { border-color:var(--navy); color:var(--navy); }
+
+    /* ── Progress bar ── */
+    .q-progress { background:var(--border); height:4px; position:relative; }
+    .q-progress-fill { height:100%; background:var(--gold); transition:width .4s ease; }
+    .q-progress-label {
+      position:absolute; right:1rem; top:50%; transform:translateY(-50%);
+      background:var(--white); padding:2px 8px; border-radius:4px;
+      font-size:11px; font-weight:700; color:var(--muted); border:1px solid var(--border);
+    }
+
+    /* ── Main ── */
+    .q-main { flex:1; padding:40px 20px 80px; }
+    .q-zone { max-width:720px; margin:0 auto; }
+
+    /* Theme badge + number */
+    .q-meta { display:flex; align-items:center; gap:12px; margin-bottom:24px; }
+    .q-badge {
+      background:var(--navy); color:var(--gold); font-size:10px; font-weight:800;
+      letter-spacing:.08em; text-transform:uppercase; padding:4px 12px;
+      border-radius:100px;
+    }
+    .q-num { color:var(--muted); font-size:13px; font-weight:500; }
+
+    /* Question text */
+    .q-texte { font-size:18px; font-weight:600; line-height:1.6; margin-bottom:32px; color:var(--navy); }
+
+    /* Answer cards */
+    .answers { display:flex; flex-direction:column; gap:10px; margin-bottom:24px; }
+    .answer {
+      display:flex; align-items:center; gap:16px;
+      padding:16px 20px; background:var(--white);
+      border:1.5px solid var(--border); border-radius:10px;
+      cursor:pointer; transition:all .15s; user-select:none;
+    }
+    .answer:hover:not(.locked) { border-color:var(--navy); box-shadow:0 2px 8px rgba(0,0,0,.06); }
+    .answer.selected { border-color:var(--gold); background:rgba(200,184,130,.08); }
+    .answer.correct  { border-color:var(--green); background:#F0FDF4; cursor:default; }
+    .answer.wrong    { border-color:var(--red);   background:#FEF2F2; cursor:default; }
+    .answer.locked:not(.correct):not(.wrong) { opacity:.55; cursor:default; }
+    .answer-letter {
+      width:32px; height:32px; border-radius:50%; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:700; font-size:14px;
+      background:rgba(4,9,26,.08); color:var(--navy);
+      transition:all .15s;
+    }
+    .answer.selected .answer-letter { background:var(--gold); color:var(--navy); }
+    .answer.correct  .answer-letter { background:var(--green); color:#fff; }
+    .answer.wrong    .answer-letter { background:var(--red);   color:#fff; }
+    .answer-text { font-size:14px; line-height:1.5; }
+
+    /* Buttons */
+    .q-actions { display:flex; flex-direction:column; align-items:stretch; gap:10px; }
+    .btn-validate {
+      display:none; width:100%; background:var(--gold); color:var(--navy);
+      border:none; border-radius:8px; padding:14px; font-size:15px; font-weight:700;
+      cursor:pointer; font-family:'Inter',sans-serif; transition:opacity .2s;
+    }
+    .btn-validate:hover { opacity:.88; }
+    .btn-validate.show { display:block; }
+    .btn-next {
+      display:none; width:100%; background:var(--navy); color:var(--cream);
+      border:none; border-radius:8px; padding:14px; font-size:15px; font-weight:700;
+      cursor:pointer; font-family:'Inter',sans-serif; transition:opacity .2s;
+    }
+    .btn-next:hover { opacity:.88; }
+    .btn-next.show { display:block; }
+
+    /* Correction zone */
+    .correction {
+      display:none; margin-top:20px; border-radius:10px; padding:20px 22px;
+      animation:fadeIn .3s ease;
+    }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+    .correction.show { display:block; }
+    .correction.ok  { background:#F0FDF4; border:1px solid #86EFAC; }
+    .correction.ko  { background:#FEF2F2; border:1px solid #FCA5A5; }
+    .correction-header { display:flex; align-items:center; gap:8px; font-weight:700; font-size:15px; margin-bottom:10px; }
+    .correction.ok .correction-header { color:#166534; }
+    .correction.ko .correction-header { color:#991B1B; }
+    .correction-expl { font-size:14px; line-height:1.7; color:var(--text); margin-bottom:12px; }
+    .correction-link { color:var(--navy); font-size:13px; font-weight:600; text-decoration:none; border-bottom:1px solid var(--border); padding-bottom:1px; }
+    .correction-link:hover { border-color:var(--navy); }
+
+    /* ── Footer ── */
+    .q-footer {
+      background:var(--white); border-top:1px solid var(--border);
+      padding:12px 2rem; display:flex; align-items:center; justify-content:space-between;
+      position:sticky; bottom:0;
+    }
+    .q-timer { font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; }
+    .q-timer strong { color:var(--navy); font-weight:700; }
+    .btn-signal {
+      background:transparent; color:var(--muted); border:none;
+      font-size:12px; cursor:pointer; font-family:'Inter',sans-serif;
+      padding:4px 0; transition:color .15s;
+    }
+    .btn-signal:hover { color:var(--red); }
+
+    /* Score badge in header */
+    .q-score-bar { display:flex; align-items:center; gap:10px; }
+    .score-dot { width:8px; height:8px; border-radius:50%; }
+    .score-dot.ok { background:var(--green); }
+    .score-dot.ko { background:var(--red); }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="q-header">
+    <a href="dashboard.html" class="logo">Cert<span>IM</span></a>
+    <div class="q-header-center">
+      Entraînement — <span id="themeLabel">Cadre réglementaire</span>
+    </div>
+    <a href="dashboard.html" class="btn-quit">Quitter</a>
+  </header>
+
+  <!-- Progress bar -->
+  <div class="q-progress" style="position:relative;overflow:visible">
+    <div class="q-progress-fill" id="progressFill" style="width:10%"></div>
+    <span class="q-progress-label" id="progressLabel">1 / 10</span>
+  </div>
+
+  <!-- Main -->
+  <main class="q-main">
+    <div class="q-zone">
+      <div class="q-meta">
+        <span class="q-badge" id="badgeTheme">Cadre réglementaire</span>
+        <span class="q-num" id="qNum">Question 1 sur 10</span>
+      </div>
+      <p class="q-texte" id="qTexte"></p>
+      <div class="answers" id="answers"></div>
+      <div class="q-actions">
+        <button class="btn-validate" id="btnValidate" onclick="valider()">Valider →</button>
+        <button class="btn-next" id="btnNext" onclick="suivant()">Question suivante →</button>
+      </div>
+      <div class="correction" id="correction">
+        <div class="correction-header" id="corrHeader"></div>
+        <p class="correction-expl" id="corrExpl"></p>
+        <a href="#" class="correction-link" onclick="return false">Voir le cours associé →</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="q-footer">
+    <div class="q-timer">Temps écoulé : <strong id="timer">00:00</strong></div>
+    <button class="btn-signal" onclick="signalerQ()">⚑ Signaler cette question</button>
+  </footer>
+
+  <script>
+    /* ── Questions data ── */
+    const QUESTIONS = [
+      {
+        theme: "Cadre réglementaire",
+        texte: "Quel est le rôle principal de l'AMF ?",
+        reponses: [
+          { l:"A", t:"Réguler les marchés financiers français" },
+          { l:"B", t:"Gérer la politique monétaire de la zone euro" },
+          { l:"C", t:"Superviser les banques commerciales" },
+          { l:"D", t:"Fixer les taux d'intérêt directeurs" }
+        ],
+        bonne:"A",
+        explication:"L'AMF (Autorité des Marchés Financiers) est le régulateur des marchés financiers en France. Elle protège l'épargne investie en produits financiers, informe les investisseurs et veille au bon fonctionnement des marchés."
+      },
+      {
+        theme:"Cadre réglementaire",
+        texte:"Quelle directive européenne encadre les services d'investissement au sein de l'Union européenne depuis 2018 ?",
+        reponses:[
+          {l:"A",t:"UCITS IV"},
+          {l:"B",t:"MiFID II"},
+          {l:"C",t:"EMIR"},
+          {l:"D",t:"Bâle III"}
+        ],
+        bonne:"B",
+        explication:"MiFID II (Markets in Financial Instruments Directive) régit la fourniture de services d'investissement dans l'UE depuis janvier 2018. Elle renforce la transparence des marchés et la protection des investisseurs par rapport à MiFID I."
+      },
+      {
+        theme:"Cadre réglementaire",
+        texte:"Quel organisme assure la supervision prudentielle des banques et assurances en France ?",
+        reponses:[
+          {l:"A",t:"L'AMF"},
+          {l:"B",t:"La Banque de France"},
+          {l:"C",t:"L'ACPR"},
+          {l:"D",t:"La BCE"}
+        ],
+        bonne:"C",
+        explication:"L'ACPR (Autorité de Contrôle Prudentiel et de Résolution) est l'autorité administrative chargée du contrôle des banques et assurances en France. Elle supervise leur solidité financière et la protection des clients."
+      },
+      {
+        theme:"Cadre réglementaire",
+        texte:"Le secret professionnel des prestataires de services d'investissement s'impose vis-à-vis de :",
+        reponses:[
+          {l:"A",t:"Des actionnaires de l'établissement uniquement"},
+          {l:"B",t:"De toute personne non habilitée par la loi"},
+          {l:"C",t:"Des concurrents directs"},
+          {l:"D",t:"Des autorités judiciaires uniquement"}
+        ],
+        bonne:"B",
+        explication:"Le secret professionnel s'impose à l'égard de toute personne non habilitée par la loi à en prendre connaissance. Les autorités de contrôle (AMF, ACPR) et judiciaires disposent d'un droit légal d'accès aux informations."
+      },
+      {
+        theme:"Cadre réglementaire",
+        texte:"Qu'est-ce qu'un prestataire de services d'investissement (PSI) ?",
+        reponses:[
+          {l:"A",t:"Toute entreprise qui achète des actions en bourse"},
+          {l:"B",t:"Une entreprise d'investissement ou un établissement de crédit agréé"},
+          {l:"C",t:"Un fonds commun de placement"},
+          {l:"D",t:"Un courtier en assurance-vie non agréé"}
+        ],
+        bonne:"B",
+        explication:"Un PSI est une entreprise d'investissement ou un établissement de crédit agréé pour fournir des services d'investissement. Il doit être agréé par l'ACPR, après avis de l'AMF, pour exercer légalement en France."
+      },
+      {
+        theme:"Cadre réglementaire",
+        texte:"L'abus de marché recouvre notamment :",
+        reponses:[
+          {l:"A",t:"La détention de plus de 30% du capital d'une société cotée"},
+          {l:"B",t:"L'utilisation d'informations privilégiées et la manipulation de marché"},
+          {l:"C",t:"La vente à découvert de titres financiers"},
+          {l:"D",t:"L'émission d'obligations sans prospectus"}
+        ],
+        bonne:"B",
+        explication:"L'abus de marché recouvre les opérations d'initiés (utilisation d'informations privilégiées non publiques) et les manipulations de marché (diffusion de fausses informations, opérations fictives). Ces comportements sont sévèrement sanctionnés par l'AMF."
+      },
+      {
+        theme:"Cadre réglementaire",
+        texte:"La classification MiFID II distingue les catégories de clients suivantes :",
+        reponses:[
+          {l:"A",t:"Clients VIP, clients standard et prospects"},
+          {l:"B",t:"Clients retail, clients professionnels et contreparties éligibles"},
+          {l:"C",t:"Investisseurs qualifiés et non qualifiés"},
+          {l:"D",t:"Clients particuliers et clients entreprises"}
+        ],
+        bonne:"B",
+        explication:"MiFID II définit trois catégories : (1) clients de détail (retail), bénéficiant de la protection maximale ; (2) clients professionnels, réputés expérimentés ; (3) contreparties éligibles, bénéficiant de la protection minimale."
+      },
+      {
+        theme:"Cadre réglementaire",
+        texte:"Le Règlement général de l'AMF s'impose à :",
+        reponses:[
+          {l:"A",t:"Les investisseurs particuliers uniquement"},
+          {l:"B",t:"Les sociétés cotées sur Euronext Paris seulement"},
+          {l:"C",t:"Toute personne dont l'activité est soumise au contrôle de l'AMF"},
+          {l:"D",t:"Les gérants de SICAV et FCP uniquement"}
+        ],
+        bonne:"C",
+        explication:"Le Règlement général de l'AMF s'impose à toute personne dont l'activité est placée sous le contrôle de l'AMF : PSI, sociétés de gestion, émetteurs, conseillers en investissements financiers, etc."
+      },
+      {
+        theme:"Cadre réglementaire",
+        texte:"Un client professionnel souhaitant bénéficier d'une protection accrue peut demander à être traité comme client de détail :",
+        reponses:[
+          {l:"A",t:"Uniquement lors de l'ouverture du compte"},
+          {l:"B",t:"À tout moment, par écrit"},
+          {l:"C",t:"Dans les 30 jours suivant l'ouverture du compte"},
+          {l:"D",t:"Il ne peut pas le demander"}
+        ],
+        bonne:"B",
+        explication:"Un client professionnel peut demander à être traité comme client de détail à tout moment et par écrit, pour bénéficier d'une protection accrue. Le PSI doit en prendre acte dans un accord contractuel."
+      },
+      {
+        theme:"Cadre réglementaire",
+        texte:"L'obligation de meilleure exécution des ordres (best execution) oblige le PSI à :",
+        reponses:[
+          {l:"A",t:"Exécuter tous les ordres au meilleur prix du marché uniquement"},
+          {l:"B",t:"Obtenir le meilleur résultat possible selon plusieurs facteurs (prix, coûts, rapidité...)"},
+          {l:"C",t:"Exécuter les ordres dans l'ordre chronologique de réception"},
+          {l:"D",t:"Sélectionner une seule plateforme d'exécution par instrument"}
+        ],
+        bonne:"B",
+        explication:"La best execution impose au PSI d'obtenir le meilleur résultat possible pour ses clients en tenant compte du prix, des coûts, de la rapidité, de la probabilité d'exécution et de tout autre facteur pertinent. Elle va au-delà du seul meilleur prix."
+      }
+    ];
+
+    /* ── State ── */
+    let currentQ = 0;
+    let selected = null;
+    let validated = false;
+    const results = [];
+    let timerSec = 0;
+    let timerInterval;
+
+    /* ── Timer ── */
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        timerSec++;
+        const m = String(Math.floor(timerSec / 60)).padStart(2,'0');
+        const s = String(timerSec % 60).padStart(2,'0');
+        document.getElementById('timer').textContent = m + ':' + s;
+      }, 1000);
+    }
+
+    /* ── Render question ── */
+    function renderQ() {
+      const q = QUESTIONS[currentQ];
+      selected = null;
+      validated = false;
+
+      document.getElementById('badgeTheme').textContent = q.theme;
+      document.getElementById('themeLabel').textContent = q.theme;
+      document.getElementById('qNum').textContent = 'Question ' + (currentQ + 1) + ' sur ' + QUESTIONS.length;
+      document.getElementById('qTexte').textContent = q.texte;
+
+      const pct = ((currentQ + 1) / QUESTIONS.length) * 100;
+      document.getElementById('progressFill').style.width = pct + '%';
+      document.getElementById('progressLabel').textContent = (currentQ + 1) + ' / ' + QUESTIONS.length;
+
+      // Answers
+      const container = document.getElementById('answers');
+      container.innerHTML = q.reponses.map(r => `
+        <div class="answer" id="ans-${r.l}" onclick="selectReponse('${r.l}')">
+          <div class="answer-letter" id="letter-${r.l}">${r.l}</div>
+          <span class="answer-text">${r.t}</span>
+        </div>
+      `).join('');
+
+      // Buttons
+      document.getElementById('btnValidate').classList.remove('show');
+      document.getElementById('btnNext').classList.remove('show');
+
+      // Correction
+      const corr = document.getElementById('correction');
+      corr.className = 'correction';
+      corr.style.display = 'none';
+    }
+
+    function selectReponse(lettre) {
+      if (validated) return;
+
+      // Clear previous
+      document.querySelectorAll('.answer').forEach(a => a.classList.remove('selected'));
+
+      selected = lettre;
+      document.getElementById('ans-' + lettre).classList.add('selected');
+      document.getElementById('btnValidate').classList.add('show');
+    }
+
+    function valider() {
+      if (!selected || validated) return;
+      validated = true;
+
+      const q = QUESTIONS[currentQ];
+      const correct = selected === q.bonne;
+      results.push({ qIdx: currentQ, selected, correct });
+
+      // Lock all cards
+      document.querySelectorAll('.answer').forEach(a => a.classList.add('locked'));
+
+      // Color the selected card
+      const selEl = document.getElementById('ans-' + selected);
+      selEl.classList.remove('selected');
+      selEl.classList.add(correct ? 'correct' : 'wrong');
+
+      // If wrong, also highlight correct
+      if (!correct) {
+        document.getElementById('ans-' + q.bonne).classList.add('correct');
+        document.getElementById('ans-' + q.bonne).classList.remove('locked');
+      }
+
+      // Correction zone
+      const corr = document.getElementById('correction');
+      corr.className = 'correction show ' + (correct ? 'ok' : 'ko');
+      document.getElementById('corrHeader').innerHTML = correct
+        ? '✓ Bonne réponse !'
+        : '✗ La bonne réponse était : <span style="margin-left:4px;padding:2px 8px;background:'+(correct?'#F0FDF4':'#FEF2F2')+';border-radius:4px">' + q.bonne + '</span>';
+      document.getElementById('corrExpl').textContent = q.explication;
+
+      // Swap buttons
+      document.getElementById('btnValidate').classList.remove('show');
+      const btnNext = document.getElementById('btnNext');
+      btnNext.textContent = currentQ < QUESTIONS.length - 1 ? 'Question suivante →' : 'Voir les résultats →';
+      btnNext.classList.add('show');
+    }
+
+    function suivant() {
+      if (currentQ < QUESTIONS.length - 1) {
+        currentQ++;
+        renderQ();
+      } else {
+        // Save results and go to result page
+        const score = results.filter(r => r.correct).length;
+        sessionStorage.setItem('certim_results', JSON.stringify({
+          score,
+          total: QUESTIONS.length,
+          theme: QUESTIONS[0].theme,
+          duree: timerSec,
+          details: results
+        }));
+        clearInterval(timerInterval);
+        window.location.href = 'resultat.html';
+      }
+    }
+
+    function signalerQ() {
+      const btn = document.querySelector('.btn-signal');
+      btn.textContent = '✓ Question signalée';
+      btn.style.color = 'var(--orange)';
+      setTimeout(() => { btn.textContent = '⚑ Signaler cette question'; btn.style.color = ''; }, 2000);
+    }
+
+    /* ── Init ── */
+    renderQ();
+    startTimer();
+  </script>
+</body>
+</html>

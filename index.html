@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CertIM — Préparez votre certification financière</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body { background: var(--bg); }
+
+    /* ── Nav ─── */
+    .site-nav {
+      background: var(--navy);
+      border-bottom: 1px solid var(--navy-card);
+      padding: 0 2rem;
+      height: var(--navbar-height);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .site-nav-links { display: flex; gap: 2rem; align-items: center; }
+    .site-nav-links a { color: var(--blue-light); text-decoration: none; font-size: 14px; }
+    .site-nav-links a:hover { color: var(--cream); }
+
+    /* ── Hero ─── */
+    .hero {
+      background: var(--hero-gradient);
+      padding: 100px 2rem 120px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(var(--cream) 1px, transparent 1px),
+                        linear-gradient(90deg, var(--cream) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.04;
+      pointer-events: none;
+    }
+    .hero-inner { position: relative; max-width: 800px; margin: 0 auto; }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(200, 184, 130, 0.12);
+      border: 1px solid rgba(200, 184, 130, 0.30);
+      color: var(--gold);
+      padding: 6px 18px;
+      border-radius: var(--radius-pill);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      margin-bottom: 28px;
+    }
+    .hero h1 {
+      color: var(--cream);
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 22px;
+    }
+    .hero-sub {
+      color: var(--blue-light);
+      font-size: 1.1rem;
+      line-height: 1.7;
+      max-width: 540px;
+      margin: 0 auto 40px;
+    }
+    .hero-note { color: var(--blue-mid); font-size: 13px; margin-top: 14px; }
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+      margin-top: 64px;
+      padding: 2rem;
+      background: var(--navy-fill-1);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--navy-border);
+    }
+    .hero-stat-val { color: var(--gold); font-size: 2rem; font-weight: 800; }
+    .hero-stat-lbl { color: var(--blue-light); font-size: 13px; margin-top: 4px; }
+
+    /* ── Generic section ─── */
+    .section { padding: 80px 2rem; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-inner h2 { font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+    .section-inner h2.dark { color: var(--cream); }
+    .section-desc { color: var(--text-muted); font-size: 15px; margin-bottom: 40px; }
+    .section-desc.dark { color: var(--blue-light); }
+
+    /* ── Certifications ─── */
+    .certs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+    .cert-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+    .cert-card.inactive { background: var(--bg); opacity: 0.6; }
+    .cert-tag-box {
+      width: 48px; height: 48px;
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 11px; letter-spacing: 0.05em;
+    }
+    .cert-tag-box.act  { background: var(--navy); color: var(--gold); }
+    .cert-tag-box.soon { background: var(--border); color: #aaa; }
+    .cert-name  { font-weight: 700; font-size: 17px; }
+    .cert-desc  { color: var(--text-muted); font-size: 14px; line-height: 1.5; flex: 1; }
+    .cert-price { font-weight: 700; font-size: 20px; }
+    .cert-price span { color: var(--text-muted); font-size: 14px; font-weight: 400; }
+    .cert-soon {
+      position: absolute; top: 16px; right: 16px;
+      background: var(--border); color: #888;
+      font-size: 10px; font-weight: 700;
+      padding: 3px 10px; border-radius: var(--radius-pill); letter-spacing: 0.05em;
+    }
+
+    /* ── Why ─── */
+    .why-section { background: var(--navy); padding: 80px 2rem; }
+    .why-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+    .why-card {
+      background: var(--navy-card);
+      border: 1px solid var(--blue-mid);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px;
+    }
+    .why-icon  { font-size: 24px; color: var(--gold); margin-bottom: 14px; }
+    .why-title { font-weight: 600; color: var(--cream); font-size: 16px; margin-bottom: 8px; }
+    .why-desc  { color: var(--blue-light); font-size: 14px; line-height: 1.6; }
+
+    /* ── Steps ─── */
+    .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+    .step { padding: 32px 28px; }
+    .step + .step { border-left: 1px dashed var(--border); }
+    .step-num {
+      font-family: var(--font-mono); font-weight: 800; font-size: 3.5rem;
+      color: rgba(200, 184, 130, 0.15); line-height: 1; margin-bottom: 16px; letter-spacing: -0.04em;
+    }
+    .step-title { font-weight: 700; font-size: 18px; margin-bottom: 8px; }
+    .step-desc  { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+
+    /* ── Themes ─── */
+    .themes-section {
+      background: var(--cream);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 80px 2rem;
+    }
+    .themes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+    .theme-item {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius-md); padding: 14px 18px;
+    }
+    .theme-num-box {
+      min-width: 28px; height: 28px;
+      background: var(--navy); color: var(--gold);
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 12px; flex-shrink: 0;
+    }
+    .theme-item-name { font-size: 14px; font-weight: 500; }
+
+    /* ── FAQ ─── */
+    .faq-grid {
+      display: flex; flex-direction: column; gap: 2px;
+      max-width: 760px; margin: 0 auto;
+    }
+    .faq-item {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius-md); padding: 22px 24px;
+    }
+    .faq-q { font-weight: 600; font-size: 15px; margin-bottom: 10px; }
+    .faq-a { color: var(--text-muted); font-size: 14px; line-height: 1.7; }
+
+    /* ── CTA final ─── */
+    .cta-section { background: var(--navy); padding: 80px 2rem; text-align: center; }
+    .cta-section h2 {
+      color: var(--cream); font-size: 2.2rem; font-weight: 700;
+      letter-spacing: -0.02em; margin-bottom: 16px;
+    }
+    .cta-section p { color: var(--blue-light); font-size: 16px; margin-bottom: 36px; }
+
+    /* ── Footer ─── */
+    footer {
+      background: var(--navy-deepest);
+      border-top: 1px solid var(--navy-card);
+      padding: 32px 2rem; text-align: center;
+    }
+    .footer-links { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+    .footer-links a { color: var(--blue-mid); text-decoration: none; font-size: 13px; }
+    .footer-copy   { color: var(--blue-mid); font-size: 12px; margin-top: 20px; }
+
+    /* ── Modal ─── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(4, 9, 26, 0.55);
+      backdrop-filter: blur(2px);
+      align-items: center; justify-content: center;
+      z-index: 200; padding: 24px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--white);
+      border: 2px solid var(--navy);
+      border-radius: var(--radius-2xl);
+      padding: 40px 44px;
+      max-width: 440px; width: 100%;
+      text-align: center;
+      box-shadow: var(--shadow-pricing);
+    }
+    .modal-cert-tag {
+      display: inline-block;
+      background: var(--navy); color: var(--gold);
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      padding: 5px 14px; border-radius: var(--radius-pill); margin-bottom: 20px;
+    }
+    .modal-price { font-size: 3.5rem; font-weight: 800; letter-spacing: -0.04em; }
+    .modal-price-currency { font-size: 1.4rem; font-weight: 600; }
+    .modal-price-period { color: var(--text-muted); font-size: 16px; }
+    .modal-note { color: var(--text-muted); font-size: 14px; margin-bottom: 28px; margin-top: 4px; }
+    .modal-features { text-align: left; margin-bottom: 28px; }
+    .modal-feature { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+    .modal-check {
+      width: 20px; height: 20px;
+      background: var(--navy); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 2px;
+      color: var(--gold); font-size: 10px; font-weight: 700;
+    }
+    .modal-feature-text { font-size: 14px; line-height: 1.5; }
+    .modal-subscribe {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; background: var(--navy); color: var(--gold);
+      padding: 15px 0; font-size: 16px; font-weight: 600;
+      border: none; border-radius: var(--radius-md);
+      cursor: pointer; text-decoration: none;
+      transition: opacity var(--transition-base);
+    }
+    .modal-subscribe:hover { opacity: 0.88; }
+    .modal-stripe { color: var(--text-muted); font-size: 12px; margin-top: 12px; }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navigation ──────────────────────────────── -->
+  <nav class="site-nav">
+    <span class="wordmark">Cert<span class="im">IM</span></span>
+    <div class="site-nav-links">
+      <a href="#">Formations</a>
+      <a href="#">Comment ça marche</a>
+      <a href="#">FAQ</a>
+      <button class="btn btn-primary btn-sm" onclick="openModal()">Commencer</button>
+    </div>
+  </nav>
+
+  <!-- ── Hero ────────────────────────────────────── -->
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-inner">
+      <span class="hero-badge">CERTIFICATION AMF · PROFESSIONNELS DES MARCHÉS FINANCIERS</span>
+      <h1>Préparez et obtenez votre<br><span style="color:var(--gold)">certification financière</span></h1>
+      <p class="hero-sub">La plateforme d'entraînement professionnelle pour réussir l'examen AMF. Questions officielles, examens blancs, statistiques avancées.</p>
+      <button class="btn btn-primary btn-lg" onclick="openModal()">Commencer maintenant — 34,99 €/mois</button>
+      <p class="hero-note">Sans engagement · Résiliation à tout moment</p>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-val">1 000+</div>
+          <div class="hero-stat-lbl">Questions officielles</div>
+        </div>
+        <div>
+          <div class="hero-stat-val">8</div>
+          <div class="hero-stat-lbl">Thèmes AMF couverts</div>
+        </div>
+        <div>
+          <div class="hero-stat-val">75%</div>
+          <div class="hero-stat-lbl">Score requis à l'examen</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Certifications ──────────────────────────── -->
+  <section class="section">
+    <div class="section-inner">
+      <h2>Certifications disponibles</h2>
+      <p class="section-desc">Préparez la certification de votre secteur. D'autres arrivent.</p>
+      <div class="certs-grid">
+        <div class="cert-card">
+          <div class="cert-tag-box act">AMF</div>
+          <div class="cert-name">Certification AMF</div>
+          <div class="cert-desc">La certification de référence pour les professionnels des marchés financiers. Obligatoire dans les établissements financiers français.</div>
+          <div class="cert-price">34,99 € <span>/ mois</span></div>
+          <button class="btn btn-secondary" style="justify-content:center" onclick="openModal()">Accéder →</button>
+        </div>
+        <div class="cert-card inactive">
+          <span class="cert-soon">BIENTÔT</span>
+          <div class="cert-tag-box soon">CFA</div>
+          <div class="cert-name">CFA Level I</div>
+          <div class="cert-desc">Bientôt disponible</div>
+        </div>
+        <div class="cert-card inactive">
+          <span class="cert-soon">BIENTÔT</span>
+          <div class="cert-tag-box soon">MiFID</div>
+          <div class="cert-name">MiFID II</div>
+          <div class="cert-desc">Bientôt disponible</div>
+        </div>
+        <div class="cert-card inactive">
+          <span class="cert-soon">BIENTÔT</span>
+          <div class="cert-tag-box soon">IAS</div>
+          <div class="cert-name">IAS / IFRS</div>
+          <div class="cert-desc">Bientôt disponible</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Pourquoi CertIM ──────────────────────────── -->
+  <section class="why-section">
+    <div class="section-inner">
+      <h2 class="dark">Pourquoi CertIM ?</h2>
+      <p class="section-desc dark">Conçu par des professionnels, pour des professionnels.</p>
+      <div class="why-grid">
+        <div class="why-card">
+          <div class="why-icon">◈</div>
+          <div class="why-title">Base de questions officielle</div>
+          <div class="why-desc">Accès à l'intégralité des questions de la banque AMF, structurées par thème et sous-thème.</div>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">◉</div>
+          <div class="why-title">Progression intelligente</div>
+          <div class="why-desc">Algorithme de répétition espacée : les questions difficiles reviennent plus souvent.</div>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">◎</div>
+          <div class="why-title">Examens blancs réalistes</div>
+          <div class="why-desc">120 questions, 2h30, conditions réelles — mesurez votre niveau avant le jour J.</div>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">◐</div>
+          <div class="why-title">Statistiques avancées</div>
+          <div class="why-desc">Progression par thème, streak quotidien, temps moyen, points faibles identifiés.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Comment ça fonctionne ───────────────────── -->
+  <section class="section">
+    <div class="section-inner">
+      <h2>Comment ça fonctionne</h2>
+      <p class="section-desc">Trois étapes, une méthode.</p>
+      <div class="steps-grid">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-title">S'abonner</div>
+          <div class="step-desc">Choisissez votre certification et souscrivez. Accès immédiat, sans engagement.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-title">S'entraîner</div>
+          <div class="step-desc">Entraînements ciblés par thème et examens blancs en conditions réelles.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-title">Réussir</div>
+          <div class="step-desc">Présentez-vous à l'examen avec la confiance d'être parfaitement préparé.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 8 thèmes ─────────────────────────────────── -->
+  <section class="themes-section">
+    <div class="section-inner">
+      <h2>Les 8 thèmes officiels de l'examen AMF</h2>
+      <p class="section-desc">100% du programme couvert.</p>
+      <div class="themes-grid">
+        <div class="theme-item"><div class="theme-num-box">1</div><span class="theme-item-name">Cadre institutionnel et réglementaire</span></div>
+        <div class="theme-item"><div class="theme-num-box">2</div><span class="theme-item-name">L'offre de produits financiers</span></div>
+        <div class="theme-item"><div class="theme-num-box">3</div><span class="theme-item-name">Les marchés financiers et leur fonctionnement</span></div>
+        <div class="theme-item"><div class="theme-num-box">4</div><span class="theme-item-name">L'analyse financière</span></div>
+        <div class="theme-item"><div class="theme-num-box">5</div><span class="theme-item-name">La gestion de portefeuille</span></div>
+        <div class="theme-item"><div class="theme-num-box">6</div><span class="theme-item-name">Les risques</span></div>
+        <div class="theme-item"><div class="theme-num-box">7</div><span class="theme-item-name">La conformité et la déontologie</span></div>
+        <div class="theme-item"><div class="theme-num-box">8</div><span class="theme-item-name">La finance durable</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ ─────────────────────────────────────── -->
+  <section class="section">
+    <div class="section-inner" style="text-align:center;margin-bottom:40px">
+      <h2>Questions fréquentes</h2>
+    </div>
+    <div class="faq-grid">
+      <div class="faq-item">
+        <div class="faq-q">À qui s'adresse la certification AMF ?</div>
+        <div class="faq-a">La certification AMF est obligatoire pour toute personne exerçant une activité de conseil en investissement, de gestion de portefeuille, ou travaillant au contact de clients sur des produits financiers au sein d'établissements financiers régulés.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Quel est le format de l'examen officiel ?</div>
+        <div class="faq-a">L'examen comprend 120 questions QCM réparties sur 8 thèmes officiels. La durée est de 2h30 et le seuil de réussite est fixé à 75% (90 bonnes réponses minimum).</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Sans engagement signifie quoi exactement ?</div>
+        <div class="faq-a">Vous pouvez résilier votre abonnement à tout moment depuis votre espace personnel. La résiliation prend effet à la fin de la période en cours. Aucuns frais supplémentaires.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Est-ce que CertIM utilise les vraies questions de l'AMF ?</div>
+        <div class="faq-a">CertIM utilise la banque de questions officielle de l'AMF, structurée selon les 8 thèmes officiels de l'examen. Toutes les questions sont conformes au référentiel en vigueur.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA final ────────────────────────────────── -->
+  <section class="cta-section">
+    <h2>Prêt à décrocher votre certification ?</h2>
+    <p>Rejoignez CertIM et commencez à vous entraîner dès aujourd'hui.</p>
+    <button class="btn btn-primary btn-lg" onclick="openModal()">Commencer — 34,99 €/mois</button>
+    <p style="color:var(--blue-mid);font-size:13px;margin-top:14px">Sans engagement · Résiliation à tout moment</p>
+  </section>
+
+  <!-- ── Footer ───────────────────────────────────── -->
+  <footer>
+    <span class="wordmark">Cert<span class="im">IM</span></span>
+    <div class="footer-links">
+      <a href="#">CGU</a>
+      <a href="#">Mentions légales</a>
+      <a href="#">Politique de confidentialité</a>
+      <a href="#">Contact</a>
+    </div>
+    <p class="footer-copy">© 2026 CertIM. Tous droits réservés.</p>
+  </footer>
+
+  <!-- ── Subscribe modal ──────────────────────────── -->
+  <div class="modal-overlay" id="modal" onclick="handleOverlayClick(event)">
+    <div class="modal-box">
+      <span class="modal-cert-tag">CERTIFICATION AMF</span>
+      <div>
+        <span class="modal-price">34,99</span>
+        <span class="modal-price-currency"> €</span>
+        <span class="modal-price-period">/mois</span>
+      </div>
+      <p class="modal-note">Sans engagement · Résiliation à tout moment</p>
+      <div class="modal-features">
+        <div class="modal-feature"><div class="modal-check">✓</div><span class="modal-feature-text">Accès illimité à toute la banque de questions</span></div>
+        <div class="modal-feature"><div class="modal-check">✓</div><span class="modal-feature-text">Entraînements par thème avec corrections</span></div>
+        <div class="modal-feature"><div class="modal-check">✓</div><span class="modal-feature-text">Examens blancs en conditions réelles (2h30)</span></div>
+        <div class="modal-feature"><div class="modal-check">✓</div><span class="modal-feature-text">Statistiques avancées et progression par thème</span></div>
+        <div class="modal-feature"><div class="modal-check">✓</div><span class="modal-feature-text">Streak quotidien et suivi de maîtrise</span></div>
+        <div class="modal-feature"><div class="modal-check">✓</div><span class="modal-feature-text">Support par email</span></div>
+      </div>
+      <a href="dashboard.html" class="modal-subscribe">S'abonner et accéder au tableau de bord →</a>
+      <p class="modal-stripe">Paiement sécurisé par Stripe · SSL</p>
+    </div>
+  </div>
+
+  <script>
+    function openModal() {
+      document.getElementById('modal').classList.add('open');
+    }
+    function handleOverlayClick(e) {
+      if (e.target === document.getElementById('modal')) closeModal();
+    }
+    function closeModal() {
+      document.getElementById('modal').classList.remove('open');
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  </script>
+
+</body>
+</html>
