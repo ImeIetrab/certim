@@ -1,0 +1,37 @@
+/* ============================================================
+   CertIM — Typography tokens
+   Single family: Inter (400 / 500 / 600 / 700 / 800)
+   ============================================================ */
+:root {
+  /* ── Family ─────────────────────────────────────── */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, monospace; /* step numbers only */
+
+  /* ── Weights ────────────────────────────────────── */
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+  --weight-black:    800;
+
+  /* ── Type scale (size / weight / use) ───────────── */
+  --text-display:  32px;  /* Inter 800 — titres hero, gros scores */
+  --text-h1:       24px;  /* Inter 700 — titres de section */
+  --text-h2:       18px;  /* Inter 700 — titres de card */
+  --text-h3:       15px;  /* Inter 600 — sous-titres, labels forts */
+  --text-base:     14px;  /* Inter 400 — texte courant */
+  --text-small:    12px;  /* Inter 500 — labels, métadonnées */
+  --text-micro:    10px;  /* Inter 700 — tags, badges (UPPERCASE) */
+
+  /* ── Line heights ───────────────────────────────── */
+  --leading-tight:   1.1;
+  --leading-snug:    1.3;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.7;
+
+  /* ── Letter spacing ─────────────────────────────── */
+  --tracking-display: -0.03em;  /* hero headlines */
+  --tracking-tight:   -0.02em;  /* logo, section titles */
+  --tracking-micro:    0.08em;  /* uppercase micro labels */
+  --tracking-label:    0.10em;  /* uppercase section labels */
+}

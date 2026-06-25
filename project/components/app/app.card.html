@@ -1,0 +1,79 @@
+<!-- @dsCard group="Components" viewport="700x470" name="App — ProgressBar · ThemeChip · KPI · Count" subtitle="Primitives spécifiques au dashboard CertIM" -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  body { margin: 0; font-family: var(--font-sans); background: var(--bg); padding: 22px 24px; }
+  .glabel { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--blue-light); margin-bottom: 12px; }
+  .group { margin-bottom: 22px; }
+  .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; }
+  .navy { background: var(--navy); border-radius: var(--radius-lg); padding: 18px; }
+  .pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+  .prow { display: grid; grid-template-columns: 150px 1fr; gap: 12px; align-items: center; margin-bottom: 10px; }
+  .pname { font-size: 12px; color: var(--navy); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { ProgressBar, ThemeChip, KpiPill, KpiValue, CountSelector } = window.CertIMDesignSystem_2a4d2d;
+
+  function Demo() {
+    const [sel, setSel] = React.useState({ 1: true, 4: false });
+    const [count, setCount] = React.useState('20');
+    return (
+      <div>
+        <div className="group">
+          <div className="glabel">KPI pills (sur navy)</div>
+          <div className="navy" style={{ display: 'flex', gap: 12 }}>
+            <KpiPill label="Jours consécutifs">
+              <div style={{ display:'flex', alignItems:'center', gap:7 }}>
+                <span style={{ fontSize:'1.5rem' }}>🔥</span>
+                <KpiValue tone="cream">7</KpiValue>
+              </div>
+            </KpiPill>
+            <KpiPill label="Score de maîtrise" minWidth={170}>
+              <KpiValue tone="gold">62%</KpiValue>
+              <ProgressBar value={62} onNavy showGoal height={5} style={{ marginTop: 8 }} />
+            </KpiPill>
+            <KpiPill label="Questions répondues">
+              <KpiValue tone="cream">347</KpiValue>
+            </KpiPill>
+          </div>
+        </div>
+
+        <div className="group">
+          <div className="glabel">Progress bars</div>
+          <div className="card">
+            <div className="prow"><span className="pname">Les risques</span><ProgressBar value={80} /></div>
+            <div className="prow"><span className="pname">Produits financiers</span><ProgressBar value={65} /></div>
+            <div className="prow" style={{ marginBottom: 0 }}><span className="pname">Finance durable</span><ProgressBar value={30} /></div>
+          </div>
+        </div>
+
+        <div className="group" style={{ marginBottom: 0, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+          <div>
+            <div className="glabel">Theme chips</div>
+            <div className="pgrid">
+              <ThemeChip num={1} name="Cadre réglementaire" score={78} selected={sel[1]} onToggle={() => setSel(s => ({...s, 1: !s[1]}))} />
+              <ThemeChip num={4} name="Analyse financière" score={48} selected={sel[4]} onToggle={() => setSel(s => ({...s, 4: !s[4]}))} />
+            </div>
+          </div>
+          <div>
+            <div className="glabel">Count selector</div>
+            <CountSelector value={count} onChange={setCount} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+</script>
+</body>
+</html>

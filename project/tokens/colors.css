@@ -1,0 +1,58 @@
+/* ============================================================
+   CertIM — Color tokens
+   Navy / Gold / Cream palette for AMF certification SaaS
+   ============================================================ */
+:root {
+  /* ── Primary: Navy ─────────────────────────────── */
+  --navy:          #04091A;  /* fond principal, sidebar, hero */
+  --navy-mid:      #071020;  /* variante hero gradient */
+  --navy-card:     #0C1D38;  /* cartes sur fond navy */
+  --navy-deepest:  #020611;  /* footer */
+
+  /* ── Primary: Gold ─────────────────────────────── */
+  --gold:          #C8B882;  /* CTA primaires, accents, highlights */
+  --gold-dark:     #A89660;  /* hover état gold */
+
+  /* ── Neutrals ──────────────────────────────────── */
+  --cream:         #F0EBE0;  /* texte sur fond sombre */
+  --bg:            #F7F4EF;  /* fond de page (beige très clair) */
+  --white:         #FFFFFF;  /* fond des cards */
+  --border:        #D6CEBD;  /* bordures cards, séparateurs */
+  --blue-light:    #7A9AB8;  /* textes secondaires, labels (muted) */
+  --blue-mid:      #3D5A78;  /* éléments discrets sur navy */
+
+  /* ── Semantic: scores ──────────────────────────── */
+  --success:       #22C55E;  /* score ≥ 75% (maîtrisé) */
+  --warning:       #F59E0B;  /* score 50–74% (en cours) */
+  --danger:        #EF4444;  /* score < 50% (à travailler) */
+
+  /* ── Badge surfaces ────────────────────────────── */
+  --pass-bg:       #DCFCE7;
+  --pass-fg:       #166534;
+  --fail-bg:       #FEE2E2;
+  --fail-fg:       #991B1B;
+
+  /* ── Calendar heat surfaces ────────────────────── */
+  --heat-low-bg:   #FEF3C7;  --heat-low-fg:  #92400E;  /* 1–15 q. */
+  --heat-mid-bg:   #FED7AA;  --heat-mid-fg:  #9A3412;  /* 16–30 q. */
+  --heat-high-bg:  #BBF7D0;  --heat-high-fg: #166534;  /* 30+ q. */
+
+  /* ── Semantic aliases ──────────────────────────── */
+  --surface-page:    var(--bg);
+  --surface-card:    var(--white);
+  --surface-navy:    var(--navy);
+  --surface-accent:  rgba(200, 184, 130, 0.10); /* gold @ 10% */
+  --border-accent:   rgba(200, 184, 130, 0.20);
+  --text-strong:     var(--navy);
+  --text-body:       var(--navy);
+  --text-muted:      var(--blue-light);
+  --text-on-navy:    var(--cream);
+  --text-accent:     var(--gold);
+
+  /* On-navy translucent surfaces */
+  --navy-fill-1:   rgba(255, 255, 255, 0.04);
+  --navy-fill-2:   rgba(255, 255, 255, 0.07);
+  --navy-fill-3:   rgba(255, 255, 255, 0.12);
+  --navy-border:   rgba(255, 255, 255, 0.10);
+  --navy-border-2: rgba(255, 255, 255, 0.18);
+}

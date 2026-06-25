@@ -1,0 +1,61 @@
+<!-- @dsCard group="App" viewport="1280x720" name="Dashboard CertIM" subtitle="Sidebar fixe + hero KPI + sections entraînement / examens / stats" -->
+<!-- @startingPoint section="App" subtitle="Full CertIM app dashboard — sidebar, hero, sections" viewport="1280x900" -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard — CertIM</title>
+<link rel="stylesheet" href="../../styles.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--font-sans); background: var(--bg); color: var(--navy); -webkit-font-smoothing: antialiased; }
+  .main { margin-left: var(--sidebar-width); display: flex; flex-direction: column; min-height: 100vh; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="Sidebar.jsx"></script>
+<script type="text/babel" src="DashboardHero.jsx"></script>
+<script type="text/babel" src="DashboardBody.jsx"></script>
+<script type="text/babel">
+  function App() {
+    const [active, setActive] = React.useState('s-overview');
+    const navigate = (id) => {
+      setActive(id);
+      const el = document.getElementById(id);
+      if (el) window.scrollTo({ top: el.offsetTop - 12, behavior: 'smooth' });
+    };
+
+    React.useEffect(() => {
+      const ids = ['s-overview', 's-exams', 's-training', 's-stats', 's-account'];
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) setActive(e.target.id); });
+      }, { rootMargin: '-25% 0px -65% 0px' });
+      ids.forEach((id) => { const el = document.getElementById(id); if (el) obs.observe(el); });
+      return () => obs.disconnect();
+    }, []);
+
+    return (
+      <React.Fragment>
+        <window.Sidebar active={active} onNavigate={navigate} />
+        <div className="main">
+          <window.DashboardHero onNavigate={navigate} />
+          <window.DashboardBody />
+        </div>
+      </React.Fragment>
+    );
+  }
+
+  function mount() {
+    if (!window.Sidebar || !window.DashboardHero || !window.DashboardBody) { setTimeout(mount, 40); return; }
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  }
+  mount();
+</script>
+</body>
+</html>

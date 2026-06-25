@@ -1,0 +1,30 @@
+/* ============================================================
+   CertIM — Effects: radii, shadows, transitions
+   ============================================================ */
+:root {
+  /* ── Border radii ───────────────────────────────── */
+  --radius-xs:    3px;   /* progress fills, mini chips */
+  --radius-sm:    6px;   /* small buttons, nav badges */
+  --radius-md:    8px;   /* buttons, chips, inputs */
+  --radius-lg:    12px;  /* cards */
+  --radius-xl:    14px;  /* feature/exam cards */
+  --radius-2xl:   16px;  /* pricing card */
+  --radius-pill:  100px; /* badges, pills */
+
+  /* ── Shadows ────────────────────────────────────── */
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-card:   0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-hover:  0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-pricing: 0 8px 40px rgba(4, 9, 26, 0.12);
+
+  /* ── Transitions ────────────────────────────────── */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);    /* @kind other */
+  --transition-base:   150ms var(--ease);  /* défaut couleur/hover */
+  --transition-bar:    600ms ease-out;     /* @kind other */ /* progress fills */
+  --transition-count:  800ms ease-out;     /* @kind other */ /* KPI counters */
+
+  /* ── Hero grid texture (cream lines @ ~4% on navy) ─ */
+  --hero-grid: linear-gradient(var(--cream) 1px, transparent 1px),
+               linear-gradient(90deg, var(--cream) 1px, transparent 1px);
+  --hero-gradient: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 60%, #0F2240 100%);
+}

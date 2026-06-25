@@ -1,0 +1,25 @@
+/* ============================================================
+   CertIM — Spacing tokens
+   Base scale: 4 / 8 / 12 / 16 / 20 / 24 / 32 / 48 / 64
+   ============================================================ */
+:root {
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ── Layout constants ───────────────────────────── */
+  --sidebar-width:   260px;
+  --navbar-height:   64px;
+
+  /* ── Semantic spacing ───────────────────────────── */
+  --gap-cards:       18px;        /* gap entre cards */
+  --pad-card:        20px 22px;   /* padding interne card */
+  --pad-sidebar-x:   22px;        /* padding horizontal sidebar */
+  --pad-page:        24px 32px;   /* padding body de page app */
+}

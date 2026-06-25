@@ -1,0 +1,24 @@
+<!-- @dsCard group="Type" viewport="700x300" name="Échelle typographique" subtitle="Inter — Display 32 → Micro 10" -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; font-family: var(--font-sans); background: var(--white); color: var(--navy); padding: 22px 24px; }
+  .spec { display: flex; align-items: baseline; gap: 16px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .spec:last-child { border-bottom: none; }
+  .label { width: 132px; flex-shrink: 0; font-size: 11px; color: var(--blue-light); font-variant-numeric: tabular-nums; }
+  .sample { line-height: 1.1; }
+</style>
+</head>
+<body>
+  <div class="spec"><span class="label">Display · 800 · 32</span><span class="sample" style="font-size:32px;font-weight:800;letter-spacing:-.03em">Certification AMF</span></div>
+  <div class="spec"><span class="label">H1 · 700 · 24</span><span class="sample" style="font-size:24px;font-weight:700;letter-spacing:-.02em">Titres de section</span></div>
+  <div class="spec"><span class="label">H2 · 700 · 18</span><span class="sample" style="font-size:18px;font-weight:700">Titres de card</span></div>
+  <div class="spec"><span class="label">H3 · 600 · 15</span><span class="sample" style="font-size:15px;font-weight:600">Sous-titres & labels forts</span></div>
+  <div class="spec"><span class="label">Body · 400 · 14</span><span class="sample" style="font-size:14px;font-weight:400">Texte courant des paragraphes.</span></div>
+  <div class="spec"><span class="label">Small · 500 · 12</span><span class="sample" style="font-size:12px;font-weight:500;color:var(--blue-light)">Labels & métadonnées</span></div>
+  <div class="spec"><span class="label">Micro · 700 · 10</span><span class="sample" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em">Tags & badges</span></div>
+</body>
+</html>

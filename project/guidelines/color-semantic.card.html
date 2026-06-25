@@ -1,0 +1,24 @@
+<!-- @dsCard group="Colors" viewport="700x160" name="Sémantiques — scores" subtitle="Vert ≥75% · Orange 50–74% · Rouge <50%" -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; font-family: var(--font-sans); background: var(--bg); padding: 18px; }
+  .row { display: flex; gap: 12px; }
+  .sw { flex: 1; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border); background: var(--white); }
+  .chip { height: 48px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 15px; }
+  .meta { padding: 8px 10px; }
+  .name { font-size: 12px; font-weight: 700; color: var(--navy); }
+  .hex { font-size: 11px; color: var(--blue-light); font-variant-numeric: tabular-nums; margin-top: 2px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="sw"><div class="chip" style="background:#22C55E">80%</div><div class="meta"><div class="name">Success · maîtrisé</div><div class="hex">#22C55E</div></div></div>
+    <div class="sw"><div class="chip" style="background:#F59E0B">65%</div><div class="meta"><div class="name">Warning · en cours</div><div class="hex">#F59E0B</div></div></div>
+    <div class="sw"><div class="chip" style="background:#EF4444">48%</div><div class="meta"><div class="name">Danger · à travailler</div><div class="hex">#EF4444</div></div></div>
+  </div>
+</body>
+</html>

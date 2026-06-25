@@ -1,0 +1,22 @@
+<!-- @dsCard group="Brand" viewport="700x150" name="Logo CertIM" subtitle="Wordmark — « Cert » crème + « IM » or" -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; font-family: var(--font-sans); display: flex; }
+  .panel { flex: 1; display: flex; align-items: center; justify-content: center; height: 150px; }
+  .logo { font-weight: 800; font-size: 28px; letter-spacing: -0.02em; }
+  .on-navy { background: var(--navy); }
+  .on-navy .logo { color: var(--cream); }
+  .on-cream { background: var(--bg); }
+  .on-cream .logo { color: var(--navy); }
+  .logo .im { color: var(--gold); }
+</style>
+</head>
+<body>
+  <div class="panel on-navy"><span class="logo">Cert<span class="im">IM</span></span></div>
+  <div class="panel on-cream"><span class="logo">Cert<span class="im">IM</span></span></div>
+</body>
+</html>

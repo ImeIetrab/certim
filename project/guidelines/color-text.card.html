@@ -1,0 +1,24 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Texte & bleus" subtitle="Labels secondaires et éléments discrets sur navy" -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; font-family: var(--font-sans); background: var(--navy); padding: 18px; }
+  .row { display: flex; gap: 12px; }
+  .sw { flex: 1; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--navy-border); }
+  .chip { height: 64px; }
+  .meta { padding: 8px 10px; background: var(--navy-card); }
+  .name { font-size: 12px; font-weight: 700; color: var(--cream); }
+  .hex { font-size: 11px; color: var(--blue-light); font-variant-numeric: tabular-nums; margin-top: 2px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="sw"><div class="chip" style="background:#7A9AB8"></div><div class="meta"><div class="name">Blue Light · muted</div><div class="hex">#7A9AB8</div></div></div>
+    <div class="sw"><div class="chip" style="background:#3D5A78"></div><div class="meta"><div class="name">Blue Mid</div><div class="hex">#3D5A78</div></div></div>
+    <div class="sw"><div class="chip" style="background:#F0EBE0"></div><div class="meta"><div class="name">Cream · texte</div><div class="hex">#F0EBE0</div></div></div>
+  </div>
+</body>
+</html>
